@@ -1,0 +1,15 @@
+ui:
+  width: 1024
+  height: 760
+  fullscreen: false
+modules:
+  - name: simple-clock
+    path: clock
+    position: top:right
+  - name: simple-weather
+    path: weather
+    position: top:left
+    config:
+      locationId: 996506
+      appId: {{ .Secrets.weather.appId }}
+      units: metric

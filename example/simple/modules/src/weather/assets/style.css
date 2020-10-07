@@ -1,0 +1,58 @@
+.weather semi-bright {
+    color: #ccc;
+}
+
+.weather .icon {
+    width: 80px;
+    height: 80px;
+}
+
+.weather .temp {
+    font-family: "Roboto", sans-serif;
+    font-size: 95px;
+    line-height: 95px;
+    letter-spacing: 0;
+    margin-right: 30px;
+}
+
+.weather .temp sup {
+    font-family: "Roboto", sans-serif;
+    font-size: 30px;
+    font-weight: 400;
+    line-height: 30px;
+    position: relative;
+    top: -15px;
+}
+
+.weather .info {
+    display: inline-block;
+    font-size: 22px;
+    line-height: 30px;
+    text-align: left;
+}
+
+.weather .info .type {
+    display: inline-block;
+    font-weight: 400;
+    text-transform: uppercase;
+    width: 70px
+}
+
+.weather .info .units {
+    font-size: 18px;
+}
+
+.weather .forecast {
+    margin-top: 30px;
+}
+
+.weather .forecast .icon {
+    width: 60px;
+    height: 60px;
+}
+
+.weather .forecast span {
+    display: inline-block;
+    margin: 0 20px;
+    text-align: center;
+}
