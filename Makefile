@@ -28,7 +28,7 @@ tools:
 	cd .gotools && if ! test -f go.mod; then \
 		go mod init tools ; \
 	fi
-	cd .gotools && go get -v $(GO_TOOLS)
+	@cd .gotools && go get -v $(GO_TOOLS) && cd ..
 
 # Build the commands
 build:
