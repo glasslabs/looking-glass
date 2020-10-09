@@ -61,4 +61,4 @@ static-assets-clean:
 static-assets:
 	@echo "==> Generating static assets"
 	@go-bindata -pkg glass -prefix webui -nocompress -o assets.gen.go ./webui/...
-	@go run ./internal/gensym -o=./module/internal/types/types.gen.go
+	#go run ./internal/gensym -o=./module/internal/types/types.gen.go
