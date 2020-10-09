@@ -1,4 +1,4 @@
-# Looking Glass
+![Logo](http://svg.wiersma.co.za/glasslabs/looking-glass)
 
 [![Go Report Card](https://goreportcard.com/badge/github.com/glasslabs/looking-glass)](https://goreportcard.com/report/github.com/glasslabs/looking-glass)
 [![Build Status](https://travis-ci.com/glasslabs/looking-glass.svg?branch=master)](https://travis-ci.com/glasslabs/looking-glass)
