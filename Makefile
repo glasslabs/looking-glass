@@ -47,6 +47,7 @@ test-coverage:
 
 # Lint the project
 lint:
+	@echo "==> Linting Go files"
 	@golangci-lint run ./...
 .PHONY: lint
 
