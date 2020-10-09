@@ -1,0 +1,26 @@
+sudo: false
+
+language: go
+go:
+  - "1.15.x"
+
+env:
+  - GO111MODULE=on GOFLAGS=-mod=readonly GOPROXY=https://proxy.golang.org
+
+cache:
+  directories:
+    - $GOPATH/pkg/mod
+
+before_install:
+  - curl -sfL https://install.goreleaser.com/github.com/golangci/golangci-lint.sh | bash -s -- -b $GOPATH/bin ${GOLANGCI_LINT_VERSION}
+  - go mod download
+  - go get github.com/mattn/goveralls
+
+script:
+  - make ci
+  - goveralls -coverprofile=profile.cov -service=travis-ci
+
+notifications:
+  email:
+    on_success: never
+    on_failure: always
