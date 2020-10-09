@@ -4,6 +4,9 @@ language: go
 go:
   - "1.15.x"
 
+env:
+  - GO111MODULE=on GOFLAGS=-mod=readonly GOPROXY=https://proxy.golang.org
+
 cache:
   directories:
     - $GOPATH/pkg/mod
