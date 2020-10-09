@@ -42,7 +42,7 @@ test:
 
 # Run all tests with a coverage output
 test-coverage:
-	@go test -race -covermode=count -coverprofile=profile.cov ./...
+	@go test -covermode=count -coverprofile=profile.cov ./...
 .PHONY: test-coverage
 
 # Lint the project
