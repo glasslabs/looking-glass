@@ -29,6 +29,8 @@ type UIConfig struct {
 	Fullscreen bool `yaml:"fullscreen"`
 }
 
+// TODO(nick): Validate the UI Config
+
 func defaultConfig() Config {
 	return Config{
 		UI: UIConfig{
