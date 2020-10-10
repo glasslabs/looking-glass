@@ -2,6 +2,7 @@ package glass
 
 import (
 	"fmt"
+	"reflect"
 	"strings"
 
 	"github.com/glasslabs/looking-glass/module"
@@ -52,7 +53,13 @@ func (ui *UI) Eval(js string) (interface{}, error) {
 	if v.Err() != nil {
 		return nil, v.Err()
 	}
-	if v.String() == "" {
+
+	// TODO(nick): Remove this once lorca #126 is resolved.
+	// This is a really nasty work around due to not being
+	// able to detect a nil return.
+	val := reflect.ValueOf(v)
+	bv := val.FieldByName("raw")
+	if bv.Len() == 0 {
 		return nil, nil
 	}
 
