@@ -80,6 +80,8 @@ type Descriptor struct {
 	Config   yaml.Node `yaml:"config"`
 }
 
+// TODO(nick): Validate the Descriptors Config
+
 // Builder builds modules.
 type Builder struct {
 	path string
