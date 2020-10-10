@@ -15,7 +15,7 @@ before_install:
 
 script:
   - make ci
-  - goveralls -coverprofile=profile.cov -service=travis-ci
+  - goveralls -coverprofile=profile.cov -service=travis-ci -ignore=*.gen.go,internal/*
 
 notifications:
   email:
