@@ -6,6 +6,7 @@ import (
 
 	"github.com/glasslabs/looking-glass/module"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 	"gopkg.in/yaml.v3"
 )
@@ -134,8 +135,8 @@ func TestBuilder_Build(t *testing.T) {
 				Package: test.pkg,
 				Config:  yaml.Node{},
 			}
-			ui := mockUI{}
-			log := mockLogger{}
+			ui := &MockUI{}
+			log := &MockLogger{}
 
 			bldr, err := module.NewBuilder("testdata")
 			require.NoError(t, err)
@@ -153,26 +154,41 @@ func TestBuilder_Build(t *testing.T) {
 	}
 }
 
-type mockUI struct{}
-
-func (t mockUI) LoadCSS(css string) error {
-	return nil
+type MockUI struct {
+	mock.Mock
 }
 
-func (t mockUI) LoadHTML(html string) error {
-	return nil
+func (m *MockUI) LoadCSS(css string) error {
+	args := m.Called(css)
+	return args.Error(0)
 }
 
-func (t mockUI) Bind(name string, fun interface{}) error {
-	return nil
+func (m *MockUI) LoadHTML(html string) error {
+	args := m.Called(html)
+	return args.Error(0)
 }
 
-func (t mockUI) Eval(cmd string, ctx ...interface{}) (interface{}, error) {
-	return nil, nil
+func (m *MockUI) Bind(name string, fun interface{}) error {
+	args := m.Called(name, fun)
+	return args.Error(0)
 }
 
-type mockLogger struct{}
+func (m *MockUI) Eval(cmd string, ctx ...interface{}) (interface{}, error) {
+	params := append([]interface{}{cmd}, ctx...)
+	args := m.Called(params...)
+	return args.Get(0), args.Error(0)
+}
 
-func (m mockLogger) Info(msg string, ctx ...interface{}) {}
+type MockLogger struct {
+	mock.Mock
+}
 
-func (m mockLogger) Error(msg string, ctx ...interface{}) {}
+func (m *MockLogger) Info(msg string, ctx ...interface{}) {
+	params := append([]interface{}{msg}, ctx...)
+	_ = m.Called(params)
+}
+
+func (m *MockLogger) Error(msg string, ctx ...interface{}) {
+	params := append([]interface{}{msg}, ctx...)
+	_ = m.Called(params)
+}
