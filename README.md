@@ -116,8 +116,8 @@ type Config struct {
 #### New
 
 `New` creates an instance of your module. It must return an [`io.Closer`](https://golang.org/pkg/io/#Closer) and an [`error`](https://golang.org/pkg/builtin/#error).
-The function takes a [`context.Context`](https://golang.org/pkg/context/#Context), the configuration structure returned by `NewConfig`,
-`Info` and `UI` objects. `Info` and `UI` are located in `github.com/glasslabs/looking-glass/module/types`.
+The function takes a [`context.Context`](https://golang.org/pkg/context/#Context), the configuration structure returned by [`NewConfig`](#newconfig),
+[`Info`](https://pkg.go.dev/github.com/glasslabs/looking-glass/module/types#Info) and [`UI`](https://pkg.go.dev/github.com/glasslabs/looking-glass/module/types#UI) objects.
 
 ```go
 func New(ctx context.Context, cfg *Config, info types.Info, ui types.UI) (io.Closer, error)
