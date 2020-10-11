@@ -21,7 +21,7 @@ tidy:
 	@echo "==> Done"
 .PHONY: tidy
 
-# Install required tools to build TraefikEE
+# Install required tools to build looking-glass
 tools:
 	@mkdir -p .gotools
 	@set -e; \
