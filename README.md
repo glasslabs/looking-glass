@@ -38,7 +38,7 @@ using [Go template syntax](https://golang.org/pkg/text/template/).
 **--modules** PATH, **-m** PATH, **$MODULES** *(Required)*
 
 The path to the modules. Module must be located under a `src` folder in the modules path.
-The modules path should be writable to `looking-glass`. 
+The application will need to be able to create files and folders in this path. 
 
 **--log.format** FORMAT, **$LOG_FORMAT** *(Default: "logfmt")*
 
@@ -46,7 +46,7 @@ Specify the format of logs. Supported formats: 'logfmt', 'json'.
 
 **--log.level** LEVEL, **$LOG_LEVEL** *(Default: "info")*
 
-Specify the log level. e.g. 'debug', 'warning'.
+Specify the log level. Supported levels: 'debug', 'info', 'warn', 'error', 'crit'.
 
 ## Configuration
 
@@ -73,7 +73,7 @@ as shown in the example above.
 
 ## Modules
 
-You can discover modules on Github using [Github Search](https://github.com/search?q=topic%3Alooking-glass+topic%3Amodule+language%3AGo&ref=simplesearch).
+You can discover modules on GitHub using [GitHub Search](https://github.com/search?q=topic%3Alooking-glass+topic%3Amodule+language%3AGo&ref=simplesearch).
 
 ### Package Naming
 
@@ -84,7 +84,7 @@ should be documented in your module.
 
 ### Development
 
-To make your module discoverable on Github, add the topics `looking-glass` and `module`.
+To make your module discoverable on GitHub, add the topics `looking-glass` and `module`.
 
 Modules are parsed in [yaegi](http://github.com/traefik/yaegi) and must expose two functions to be loaded:
 
