@@ -94,7 +94,7 @@ Modules are parsed in [yaegi](http://github.com/traefik/yaegi) and must expose t
 #### NewConfig
 
 `NewConfig` exposes your configuration structure to looking glass. The function must return
-a single structure with default values set. The yaml configuration will be decoded into
+a single structure with default values set. The YAML configuration will be decoded into
 the returned structure, so it should contain `yaml` tags for the configuration to be decoded
 properly.  
 
