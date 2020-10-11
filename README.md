@@ -129,7 +129,7 @@ All dependencies must vendored except for `github.com/glasslabs/looking-glass/mo
 If you still wish to use Go Modules for dependency management, you should run `go mod vendor` to 
 vendor your dependencies and commit your `vendor` folder to git.
 
-More information about vendoring can be found in the [Go Module Referencr](https://golang.org/ref/mod#vendoring).
+More information about vendoring can be found in the [Go Module Reference](https://golang.org/ref/mod#vendoring).
 
 ## TODO
 
