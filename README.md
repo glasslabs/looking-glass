@@ -25,28 +25,28 @@ glass run -c /path/to/config.yaml -m /path/to/modules
 
 #### Options
 
-**--secrets** FILE, **-s** FILE, **$SECRETS**
+**--secrets** FILE, **-s** FILE, **$SECRETS** *(Optional)*
 
 The path to the YAML secrets file. Secrets can be accessed in the 
 configuration using [Go template syntax](https://golang.org/pkg/text/template/) using the ".Secrets" prefix.
 
-**--config** FILE, **-c** FILE, **$CONFIG**
+**--config** FILE, **-c** FILE, **$CONFIG** *(Required)*
 
 The path to the YAML configuration file. This file will be parsed
 using [Go template syntax](https://golang.org/pkg/text/template/). 
 
-**--modules** PATH, **-m** PATH, **$MODULES**
+**--modules** PATH, **-m** PATH, **$MODULES** *(Required)*
 
 The path to the modules. Module must be located under a `src` folder in the modules path.
 The modules path should be writable to `looking-glass`. 
 
-**--log.format** FORMAT, **$LOG_FORMAT**
+**--log.format** FORMAT, **$LOG_FORMAT** *(Default: "logfmt")*
 
-Specify the format of logs. Supported formats: 'logfmt', 'json'. (default: "logfmt").
+Specify the format of logs. Supported formats: 'logfmt', 'json'.
 
-**--log.level** LEVEL, **$LOG_LEVEL**
+**--log.level** LEVEL, **$LOG_LEVEL** *(Default: "info")*
 
-Specify the log level. e.g. 'debug', 'warning'. (default: "info").
+Specify the log level. e.g. 'debug', 'warning'.
 
 ## Configuration
 
