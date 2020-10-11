@@ -8,23 +8,48 @@
 
 Smart mirror platform written in Go leveraging Yaegi.
 
+## Table of Contents
+* [Usage](#usage)
+    * [Run](#run) ([Options](#run-options))
+* [Configuration](#configuration)
+* [Modules](#modules)
+    * [Package Naming](#package-naming)
+    * [Development](#development)
+
 ## Usage
 
 ### Run
 
-Runs looking glass using the specified config and modules path.
+Runs looking glass using the specified configuration and modules path.
 
 ```bash
 glass run -c /path/to/config.yaml -m /path/to/modules
 ```
 
-| Command               | Env        | Description                                                                  |
-|-----------------------|------------|------------------------------------------------------------------------------|
-|`--secrets`/`-s` FILE  | SECRETS    | The path to the secrets file.                                                |
-| `--config`/`-c` FILE  | CONFIG     | The path to the configuration file.                                          |
-| `--modules`/`-m` PATH | MODULES    | The path to the modules. Modules will be located under `src` in this folder. |
-| `--log.format` FORMAT | LOG_FORMAT | Specify the format of logs. Supported formats: 'logfmt', 'json'              |
-| `--log.level` LEVEL   | LOG_LEVEL  | Specify the log level. E.g. 'debug', 'warning'. (default: "info")            |
+#### Run Options
+
+**--secrets** FILE, **-s** FILE, **$SECRETS** *(Optional)*
+
+The path to the YAML secrets file to hold sensitive configuration values. Secrets can be accessed in the 
+configuration using [Go template syntax](https://golang.org/pkg/text/template/) using the ".Secrets" prefix.
+
+**--config** FILE, **-c** FILE, **$CONFIG** *(Required)*
+
+The path to the YAML configuration file for `looking-glass` which includes module configuration. 
+This file will be parsed using [Go template syntax](https://golang.org/pkg/text/template/). 
+
+**--modules** PATH, **-m** PATH, **$MODULES** *(Required)*
+
+The path to the modules. Module must be located under a `src` folder in the modules path.
+The application will need to be able to create files and folders in this path. 
+
+**--log.format** FORMAT, **$LOG_FORMAT** *(Default: "logfmt")*
+
+Specify the format of logs. Supported formats: 'logfmt', 'json'.
+
+**--log.level** LEVEL, **$LOG_LEVEL** *(Default: "info")*
+
+Specify the log level. Supported levels: 'debug', 'info', 'warn', 'error', 'crit'.
 
 ## Configuration
 
@@ -46,42 +71,65 @@ modules:
       units: metric
 ```
 
-The module configuration can contain secrets from the secrets yaml prefixed with `.Secrets`
+The module configuration can contain secrets from the secrets YAML prefixed with `.Secrets`
 as shown in the example above. 
 
 ## Modules
+
+You can discover modules on GitHub using [GitHub Search](https://github.com/search?q=topic%3Alooking-glass+topic%3Amodule+language%3AGo&ref=simplesearch).
 
 ### Package Naming
 
 If your module uses a hyphen, which is not supported by Go, it will be assumed that the package name is the
 last path of the hyphenated name (e.g. `looking-glass` would result in a package name `glass`). If this is not
-the case for your module, the `Package` should be set in the module cofiguration to the correct package name and
+the case for your module, the `Package` should be set in the module configuration to the correct package name and
 should be documented in your module.
 
 ### Development
+
+To make your module discoverable on GitHub, add the topics `looking-glass` and `module`.
 
 Modules are parsed in [yaegi](http://github.com/traefik/yaegi) and must expose two functions to be loaded:
 
 #### NewConfig
 
 `NewConfig` exposes your configuration structure to looking glass. The function must return
-a single structure with default values set. The yaml configuration will be decoded into
-the returned structure so it should contain `yaml` tags for configuration to be decoded
+a single structure with default values set. The YAML configuration will be decoded into
+the returned structure, so it should contain `yaml` tags for the configuration to be decoded
 properly.  
 
 ```go
 func NewConfig() *Config 
 ```
 
-#### New
-
-`New` creates an instance of your module. It must return an `io.Closer` and an `error.
-The function takes a `context.Context`, the configuration structure returned by `NewConfig`,
-`Info` and `UI` objects. `Info` and `UI` are located in `github.com/glasslabs/looking-glass/module/types`.
+An example configuration would look as follows:
 
 ```go
-func New(_ context.Context, cfg *Config, info types.Info, ui types.UI) (io.Closer, error)
+// Config is the module configuration.
+type Config struct {
+	TimeFormat string `yaml:"timeFormat"`
+	DateFormat string `yaml:"dateFormat"`
+	Timezone   string `yaml:"timezone"`
+}
 ```
+
+#### New
+
+`New` creates an instance of your module. It must return an [`io.Closer`](https://golang.org/pkg/io/#Closer) and an [`error`](https://golang.org/pkg/builtin/#error).
+The function takes a [`context.Context`](https://golang.org/pkg/context/#Context), the configuration structure returned by [`NewConfig`](#newconfig),
+[`Info`](https://pkg.go.dev/github.com/glasslabs/looking-glass/module/types#Info) and [`UI`](https://pkg.go.dev/github.com/glasslabs/looking-glass/module/types#UI) objects.
+
+```go
+func New(ctx context.Context, cfg *Config, info types.Info, ui types.UI) (io.Closer, error)
+```
+
+#### Dependencies
+
+All dependencies must vendored except for `github.com/glasslabs/looking-glass/module/types`. 
+If you still wish to use Go Modules for dependency management, you should run `go mod vendor` to 
+vendor your dependencies and commit your `vendor` folder to git.
+
+More information about vendoring can be found in the [Go Module Reference](https://golang.org/ref/mod#vendoring).
 
 ## TODO
 
@@ -90,4 +138,3 @@ things to do is below:
 
 * Better documentation
 * Module download from config
-* Better test coverage
