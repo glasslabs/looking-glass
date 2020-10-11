@@ -10,7 +10,7 @@ Smart mirror platform written in Go leveraging Yaegi.
 
 ## Table of Contents
 * [Usage](#usage)
-    * [Run](#run)
+    * [Run](#run) ([Options](#run-options))
 * [Configuration](#configuration)
 * [Modules](#modules)
     * [Package Naming](#package-naming)
@@ -20,13 +20,13 @@ Smart mirror platform written in Go leveraging Yaegi.
 
 ### Run
 
-Runs looking glass using the specified config and modules path.
+Runs looking glass using the specified configuration and modules path.
 
 ```bash
 glass run -c /path/to/config.yaml -m /path/to/modules
 ```
 
-#### Options
+#### Run Options
 
 **--secrets** FILE, **-s** FILE, **$SECRETS** *(Optional)*
 
