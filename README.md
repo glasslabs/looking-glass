@@ -10,8 +10,11 @@ Smart mirror platform written in Go leveraging Yaegi.
 
 ## Table of Contents
 * [Usage](#usage)
+    * [Run](#run)
 * [Configuration](#configuration)
 * [Modules](#modules)
+    * [Package Naming](#package-naming)
+    * [Development](#development)
 
 ## Usage
 
@@ -27,13 +30,13 @@ glass run -c /path/to/config.yaml -m /path/to/modules
 
 **--secrets** FILE, **-s** FILE, **$SECRETS** *(Optional)*
 
-The path to the YAML secrets file. Secrets can be accessed in the 
+The path to the YAML secrets file to hold sensitive configuration values. Secrets can be accessed in the 
 configuration using [Go template syntax](https://golang.org/pkg/text/template/) using the ".Secrets" prefix.
 
 **--config** FILE, **-c** FILE, **$CONFIG** *(Required)*
 
-The path to the YAML configuration file. This file will be parsed
-using [Go template syntax](https://golang.org/pkg/text/template/). 
+The path to the YAML configuration file for `looking-glass` which includes module configuration. 
+This file will be parsed using [Go template syntax](https://golang.org/pkg/text/template/). 
 
 **--modules** PATH, **-m** PATH, **$MODULES** *(Required)*
 
@@ -99,10 +102,21 @@ properly.
 func NewConfig() *Config 
 ```
 
+An example configuration would look as follows:
+
+```go
+// Config is the module configuration.
+type Config struct {
+	TimeFormat string `yaml:"timeFormat"`
+	DateFormat string `yaml:"dateFormat"`
+	Timezone   string `yaml:"timezone"`
+}
+```
+
 #### New
 
-`New` creates an instance of your module. It must return an `io.Closer` and an `error`.
-The function takes a `context.Context`, the configuration structure returned by `NewConfig`,
+`New` creates an instance of your module. It must return an [`io.Closer`](https://golang.org/pkg/io/#Closer) and an [`error`](https://golang.org/pkg/builtin/#error).
+The function takes a [`context.Context`](https://golang.org/pkg/context/#Context), the configuration structure returned by `NewConfig`,
 `Info` and `UI` objects. `Info` and `UI` are located in `github.com/glasslabs/looking-glass/module/types`.
 
 ```go
@@ -114,6 +128,8 @@ func New(ctx context.Context, cfg *Config, info types.Info, ui types.UI) (io.Clo
 All dependencies must vendored except for `github.com/glasslabs/looking-glass/module/types`. 
 If you still wish to use Go Modules for dependency management, you should run `go mod vendor` to 
 vendor your dependencies and commit your `vendor` folder to git.
+
+More information about vendoring can be found in the [Go Module Referencr](https://golang.org/ref/mod#vendoring).
 
 ## TODO
 
