@@ -2,6 +2,7 @@ package glass
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"text/template"
 
@@ -22,6 +23,36 @@ type Config struct {
 	Modules []module.Descriptor `yaml:"modules"`
 }
 
+// Validate validates the configuration.
+func (c Config) Validate() error {
+	if err := c.UI.Validate(); err != nil {
+		return err
+	}
+
+	if len(c.Modules) == 0 {
+		return errors.New("config: at least one module is required")
+	}
+	seen := map[string]bool{}
+	pathVer := map[string]string{}
+	for _, mod := range c.Modules {
+		if err := mod.Validate(); err != nil {
+			return err
+		}
+		if seen[mod.Name] {
+			return fmt.Errorf("config: module name %q is a duplicate. module names must be unique", mod.Name)
+		}
+		seen[mod.Name] = true
+
+		ver, ok := pathVer[mod.Path]
+		if ok && ver != mod.Version {
+			return fmt.Errorf("config: module %q has mismatched versions (%s != %s)", mod.Path, mod.Version, ver)
+		}
+		pathVer[mod.Path] = mod.Version
+	}
+
+	return nil
+}
+
 // UIConfig contains configuration for the UI.
 type UIConfig struct {
 	Width      int  `yaml:"width"`
@@ -29,7 +60,14 @@ type UIConfig struct {
 	Fullscreen bool `yaml:"fullscreen"`
 }
 
-// TODO(nick): Validate the UI Config
+// Validate validates the ui configuration.
+func (c UIConfig) Validate() error {
+	if c.Width <= 0 || c.Height <= 0 {
+		return errors.New("config: ui width and height muse be greater than zero")
+	}
+
+	return nil
+}
 
 func defaultConfig() Config {
 	return Config{
