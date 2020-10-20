@@ -1,6 +1,7 @@
-*.gen.go
-/.gotools
-/glass
-
 # IDE commons
 .idea
+
+*.gen.go
+/.gotools
+/.env
+/glass
