@@ -42,6 +42,145 @@ func TestParseSecrets(t *testing.T) {
 	}
 }
 
+func TestConfig_Validate(t *testing.T) {
+	tests := []struct {
+		name    string
+		config  glass.Config
+		wantErr string
+	}{
+		{
+			name: "valid config",
+			config: glass.Config{
+				UI: glass.UIConfig{
+					Width:  1,
+					Height: 1,
+				},
+				Modules: []module.Descriptor{
+					{
+						Name: "test-module",
+						Path: "test",
+					},
+				},
+			},
+			wantErr: "",
+		},
+		{
+			name: "handles zero width",
+			config: glass.Config{
+				UI: glass.UIConfig{
+					Width:  0,
+					Height: 1,
+				},
+				Modules: []module.Descriptor{
+					{
+						Name: "test-module",
+						Path: "test",
+					},
+				},
+			},
+			wantErr: "config: ui width and height muse be greater than zero",
+		},
+		{
+			name: "handles zero height",
+			config: glass.Config{
+				UI: glass.UIConfig{
+					Width:  1,
+					Height: 0,
+				},
+				Modules: []module.Descriptor{
+					{
+						Name: "test-module",
+						Path: "test",
+					},
+				},
+			},
+			wantErr: "config: ui width and height muse be greater than zero",
+		},
+		{
+			name: "handles no modules",
+			config: glass.Config{
+				UI: glass.UIConfig{
+					Width:  1,
+					Height: 1,
+				},
+			},
+			wantErr: "config: at least one module is required",
+		},
+		{
+			name: "handles invalid module",
+			config: glass.Config{
+				UI: glass.UIConfig{
+					Width:  1,
+					Height: 1,
+				},
+				Modules: []module.Descriptor{
+					{
+						Name: "",
+						Path: "test",
+					},
+				},
+			},
+			wantErr: "config: a module must have a name",
+		},
+		{
+			name: "handles duplicate module name",
+			config: glass.Config{
+				UI: glass.UIConfig{
+					Width:  1,
+					Height: 1,
+				},
+				Modules: []module.Descriptor{
+					{
+						Name: "test-module",
+						Path: "test",
+					},
+					{
+						Name: "test-module",
+						Path: "test1",
+					},
+				},
+			},
+			wantErr: "config: module name \"test-module\" is a duplicate. module names must be unique",
+		},
+		{
+			name: "handles mismatched module versions",
+			config: glass.Config{
+				UI: glass.UIConfig{
+					Width:  1,
+					Height: 1,
+				},
+				Modules: []module.Descriptor{
+					{
+						Name:    "test-module1",
+						Path:    "test",
+						Version: "1",
+					},
+					{
+						Name:    "test-module2",
+						Path:    "test",
+						Version: "2",
+					},
+				},
+			},
+			wantErr: "config: module \"test\" has mismatched versions (2 != 1)",
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			err := test.config.Validate()
+
+			if test.wantErr != "" {
+				assert.Error(t, err)
+				assert.EqualError(t, err, test.wantErr)
+				return
+			}
+
+			assert.NoError(t, err)
+		})
+	}
+}
+
 func TestParseConfig(t *testing.T) {
 	tests := []struct {
 		name    string

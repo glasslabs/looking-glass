@@ -2,7 +2,6 @@ package mod_nil
 
 import (
 	"context"
-	"errors"
 	"io"
 
 	"github.com/glasslabs/looking-glass/module/types"

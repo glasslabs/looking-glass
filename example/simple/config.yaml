@@ -4,10 +4,12 @@ ui:
   fullscreen: false
 modules:
   - name: simple-clock
-    path: clock
+    path: github.com/glasslabs/clock
+    version: latest
     position: top:right
   - name: simple-weather
-    path: weather
+    path: github.com/glasslabs/weather
+    version: latest
     position: top:left
     config:
       locationId: 996506
