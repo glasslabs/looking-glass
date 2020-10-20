@@ -1,10 +1,10 @@
 ![Logo](http://svg.wiersma.co.za/glasslabs/looking-glass)
 
 [![Go Report Card](https://goreportcard.com/badge/github.com/glasslabs/looking-glass)](https://goreportcard.com/report/github.com/glasslabs/looking-glass)
-[![Build Status](https://travis-ci.com/glasslabs/looking-glass.svg?branch=master)](https://travis-ci.com/glasslabs/looking-glass)
-[![Coverage Status](https://coveralls.io/repos/github/glasslabs/looking-glass/badge.svg?branch=master)](https://coveralls.io/github/glasslabs/looking-glass?branch=master)
+[![Build Status](https://travis-ci.com/glasslabs/looking-glass.svg?branch=main)](https://travis-ci.com/glasslabs/looking-glass)
+[![Coverage Status](https://coveralls.io/repos/github/glasslabs/looking-glass/badge.svg?branch=main)](https://coveralls.io/github/glasslabs/looking-glass?branch=main)
 [![GitHub release](https://img.shields.io/github/release/glasslabs/looking-glass.svg)](https://github.com/glasslabs/looking-glass/releases)
-[![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/glasslabs/looking-glass/master/LICENSE)
+[![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/glasslabs/looking-glass/main/LICENSE)
 
 Smart mirror platform written in Go leveraging Yaegi.
 

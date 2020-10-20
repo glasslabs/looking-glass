@@ -32,14 +32,14 @@ func TestNewProxyClient_HandlesBadURL(t *testing.T) {
 
 func TestProxyClient_VersionResolvesVersion(t *testing.T) {
 	srv := httptest.NewServer(t)
-	srv.On(http.MethodGet, "/github.com/glasslabs/test/@v/master.info").
+	srv.On(http.MethodGet, "/github.com/glasslabs/test/@v/main.info").
 		ReturnsString(http.StatusOK, `{"Version":"v0.1.0"}`)
 	defer srv.Close()
 
 	c, err := module.NewProxyClient(srv.URL())
 	require.NoError(t, err)
 
-	got, err := c.Version("github.com/glasslabs/test", "master")
+	got, err := c.Version("github.com/glasslabs/test", "main")
 
 	if assert.NoError(t, err) {
 		assert.Equal(t, "github.com/glasslabs/test", got.Path)
@@ -68,14 +68,14 @@ func TestProxyClient_VersionResolvesLatest(t *testing.T) {
 
 func TestProxyClient_VersionHandlesError(t *testing.T) {
 	srv := httptest.NewServer(t)
-	srv.On(http.MethodGet, "/github.com/glasslabs/test/@v/master.info").
+	srv.On(http.MethodGet, "/github.com/glasslabs/test/@v/main.info").
 		ReturnsString(http.StatusNotFound, `Not Found`)
 	defer srv.Close()
 
 	c, err := module.NewProxyClient(srv.URL())
 	require.NoError(t, err)
 
-	_, err = c.Version("github.com/glasslabs/test", "master")
+	_, err = c.Version("github.com/glasslabs/test", "main")
 
 	assert.Error(t, err)
 	srv.AssertExpectations()
@@ -83,14 +83,14 @@ func TestProxyClient_VersionHandlesError(t *testing.T) {
 
 func TestProxyClient_VersionHandlesBadJSON(t *testing.T) {
 	srv := httptest.NewServer(t)
-	srv.On(http.MethodGet, "/github.com/glasslabs/test/@v/master.info").
+	srv.On(http.MethodGet, "/github.com/glasslabs/test/@v/main.info").
 		ReturnsString(http.StatusOK, `{`)
 	defer srv.Close()
 
 	c, err := module.NewProxyClient(srv.URL())
 	require.NoError(t, err)
 
-	_, err = c.Version("github.com/glasslabs/test", "master")
+	_, err = c.Version("github.com/glasslabs/test", "main")
 
 	assert.Error(t, err)
 	srv.AssertExpectations()
@@ -98,14 +98,14 @@ func TestProxyClient_VersionHandlesBadJSON(t *testing.T) {
 
 func TestProxyClient_Download(t *testing.T) {
 	srv := httptest.NewServer(t)
-	srv.On(http.MethodGet, "/test/@v/master.zip").
+	srv.On(http.MethodGet, "/test/@v/main.zip").
 		ReturnsString(http.StatusOK, `1234`)
 	defer srv.Close()
 
 	c, err := module.NewProxyClient(srv.URL())
 	require.NoError(t, err)
 
-	got, err := c.Download(mod.Version{Path: "test", Version: "master"})
+	got, err := c.Download(mod.Version{Path: "test", Version: "main"})
 
 	if assert.NoError(t, err) {
 		if !assert.Implements(t, (*io.ReadCloser)(nil), got) {
@@ -119,14 +119,14 @@ func TestProxyClient_Download(t *testing.T) {
 
 func TestProxyClient_DownloadHandlesError(t *testing.T) {
 	srv := httptest.NewServer(t)
-	srv.On(http.MethodGet, "/test/@v/master.zip").
+	srv.On(http.MethodGet, "/test/@v/main.zip").
 		ReturnsStatus(http.StatusNotFound)
 	defer srv.Close()
 
 	c, err := module.NewProxyClient(srv.URL())
 	require.NoError(t, err)
 
-	_, err = c.Download(mod.Version{Path: "test", Version: "master"})
+	_, err = c.Download(mod.Version{Path: "test", Version: "main"})
 
 	assert.Error(t, err)
 }
@@ -159,12 +159,12 @@ func TestCachedClient_Version(t *testing.T) {
 	defer os.RemoveAll(dir)
 
 	c := &MockClient{}
-	c.On("Version", "test", "master").Return(mod.Version{Path: "test", Version: "v0.1.0"}, nil)
+	c.On("Version", "test", "main").Return(mod.Version{Path: "test", Version: "v0.1.0"}, nil)
 
 	cache, err := module.NewCachedClient(c, dir)
 	require.NoError(t, err)
 
-	got, err := cache.Version("test", "master")
+	got, err := cache.Version("test", "main")
 
 	if assert.NoError(t, err) {
 		assert.Equal(t, "test", got.Path)
@@ -179,12 +179,12 @@ func TestCachedClient_VersionHandlesError(t *testing.T) {
 	defer os.RemoveAll(dir)
 
 	c := &MockClient{}
-	c.On("Version", "test", "master").Return(mod.Version{}, errors.New("test"))
+	c.On("Version", "test", "main").Return(mod.Version{}, errors.New("test"))
 
 	cache, err := module.NewCachedClient(c, dir)
 	require.NoError(t, err)
 
-	_, err = cache.Version("test", "master")
+	_, err = cache.Version("test", "main")
 
 	assert.Error(t, err)
 }
@@ -196,12 +196,12 @@ func TestCachedClient_Download(t *testing.T) {
 
 	r := ioutil.NopCloser(bytes.NewReader([]byte("1234")))
 	c := &MockClient{}
-	c.On("Download", mod.Version{Path: "test", Version: "master"}).Once().Return(r, nil)
+	c.On("Download", mod.Version{Path: "test", Version: "main"}).Once().Return(r, nil)
 
 	cache, err := module.NewCachedClient(c, dir)
 	require.NoError(t, err)
 
-	got, err := cache.Download(mod.Version{Path: "test", Version: "master"})
+	got, err := cache.Download(mod.Version{Path: "test", Version: "main"})
 
 	if assert.NoError(t, err) {
 		if !assert.Implements(t, (*io.ReadCloser)(nil), got) {
@@ -213,7 +213,7 @@ func TestCachedClient_Download(t *testing.T) {
 	}
 
 	// Get from the cache the second time
-	got, err = cache.Download(mod.Version{Path: "test", Version: "master"})
+	got, err = cache.Download(mod.Version{Path: "test", Version: "main"})
 
 	if assert.NoError(t, err) {
 		if !assert.Implements(t, (*io.ReadCloser)(nil), got) {

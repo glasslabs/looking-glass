@@ -140,7 +140,7 @@ func TestService_Extract(t *testing.T) {
 	require.NoError(t, err)
 	r2 := ioutil.NopCloser(bytes.NewReader(b))
 	c := &MockClient{}
-	c.On("Version", "test-module", "master").Twice().Return(mod.Version{Path: "test-module", Version: "v0.1.0"}, nil)
+	c.On("Version", "test-module", "main").Twice().Return(mod.Version{Path: "test-module", Version: "v0.1.0"}, nil)
 	c.On("Version", "test-module", "latest").Once().Return(mod.Version{Path: "test-module", Version: "v0.2.0"}, nil)
 	c.On("Download", mod.Version{Path: "test-module", Version: "v0.1.0"}).Once().Return(r1, nil)
 	c.On("Download", mod.Version{Path: "test-module", Version: "v0.2.0"}).Once().Return(r2, nil)
@@ -151,7 +151,7 @@ func TestService_Extract(t *testing.T) {
 	err = svc.Extract(module.Descriptor{
 		Name:    "test",
 		Path:    "test-module",
-		Version: "master",
+		Version: "main",
 	})
 
 	if assert.NoError(t, err) {
@@ -164,7 +164,7 @@ func TestService_Extract(t *testing.T) {
 	err = svc.Extract(module.Descriptor{
 		Name:    "test",
 		Path:    "test-module",
-		Version: "master",
+		Version: "main",
 	})
 
 	if assert.NoError(t, err) {
@@ -199,7 +199,7 @@ func TestService_ExtractLeavesUserModule(t *testing.T) {
 	require.NoError(t, err)
 
 	c := &MockClient{}
-	c.On("Version", "test-module", "master").Return(mod.Version{Path: "test-module", Version: "v0.1.0"}, nil)
+	c.On("Version", "test-module", "main").Return(mod.Version{Path: "test-module", Version: "v0.1.0"}, nil)
 
 	svc, err := module.NewService(dir, c)
 	require.NoError(t, err)
@@ -207,7 +207,7 @@ func TestService_ExtractLeavesUserModule(t *testing.T) {
 	err = svc.Extract(module.Descriptor{
 		Name:    "test",
 		Path:    "test-module",
-		Version: "master",
+		Version: "main",
 	})
 
 	if assert.NoError(t, err) {
