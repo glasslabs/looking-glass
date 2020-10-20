@@ -4,6 +4,7 @@ import (
 	"log"
 	"os"
 
+	_ "github.com/joho/godotenv/autoload"
 	"github.com/urfave/cli/v2"
 )
 
@@ -52,7 +53,7 @@ var commands = []*cli.Command{
 			&cli.StringFlag{
 				Name:    flagLogLevel,
 				Value:   "info",
-				Usage:   "Specify the log level. E.g. 'debug', 'warning'.",
+				Usage:   "Specify the log level. E.g. 'debug', 'warn'.",
 				EnvVars: []string{"LOG_LEVEL"},
 			},
 		},
