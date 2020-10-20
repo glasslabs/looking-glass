@@ -55,13 +55,14 @@ Specify the log level. Supported levels: 'debug', 'info', 'warn', 'error', 'crit
 
 ```yaml
 ui:
-  width:  640           # The width of the chrome window
-  height: 480           # The height of the chrome window
-  fullscreen: true      # If the chrome window should start fullscreen
+  width:  640
+  height: 480
+  fullscreen: true
 modules:
-  - name: simple-clock      # The name of the module (must be unique)
-    path: clock             # The path to the module
-    position: top:right     # The position of the module
+  - name: simple-clock
+    path: github.com/glasslabs/clock
+    version: latest
+    position: top:right
   - name: simple-weather
     path: weather
     position: top:left
@@ -72,7 +73,44 @@ modules:
 ```
 
 The module configuration can contain secrets from the secrets YAML prefixed with `.Secrets`
-as shown in the example above. 
+as shown in the example above.
+
+### Configuration Options
+
+**ui.width**
+
+The width of the chrome window.
+
+**ui.height**
+
+The height of the chrome window.
+
+**ui.fullscreen**
+
+If the chrome window should start fullscreen.
+
+**modules.[].name**
+
+The name of the module. This name must be unique. This is used as the ID of the module HTML wrapper.
+
+**modules.[].path**
+
+The module repository or path of the module under the modules path. If the version of module
+is set, looking glass will attempt download the module and manage its versions, otherwise it will
+assume the provided path exists.
+
+**modules.[].version**
+
+The version or branch of the module to download. This can also be `latest` in which case the latest version will be
+downloaded.
+
+**modules.[].position**
+
+The position of the module.
+
+**module.[].config**
+
+The configuration that will be passed to the module.
 
 ## Modules
 
