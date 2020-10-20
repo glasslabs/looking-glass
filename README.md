@@ -108,7 +108,7 @@ downloaded.
 
 The position of the module.
 
-**module.[].config**
+**modules.[].config**
 
 The configuration that will be passed to the module.
 
@@ -174,5 +174,4 @@ More information about vendoring can be found in the [Go Module Reference](https
 This is very much a work in progress and under active development. The immediate list of
 things to do is below:
 
-* Better documentation
-* Module download from config
+* Installation script for Raspberry Pi
