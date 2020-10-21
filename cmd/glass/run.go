@@ -37,7 +37,7 @@ func run(c *cli.Context) error {
 		return err
 	}
 
-	ui, err := glass.NewUI(cfg.UI.Width, cfg.UI.Height, cfg.UI.Fullscreen)
+	ui, err := glass.NewUI(cfg.UI)
 	if err != nil {
 		return err
 	}

@@ -3,14 +3,66 @@ package glass
 import (
 	"encoding/json"
 	"errors"
+	"strings"
 	"testing"
 
+	. "github.com/agiledragon/gomonkey/v2"
 	"github.com/glasslabs/looking-glass/module"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 	"github.com/zserge/lorca"
 )
+
+func TestNewUI(t *testing.T) {
+	cfg := UIConfig{
+		Width:      1024,
+		Height:     764,
+		Fullscreen: true,
+		CustomCSS: []string{
+			"testdata/custom.css",
+		},
+	}
+	ui := &MockLorcaUI{}
+	ui.On("Eval", mock.MatchedBy(func(js string) bool {
+		return strings.HasPrefix(js, "loadCSS(`fonts`")
+	})).Once().Return(NewValue("", nil))
+	ui.On("Eval", "loadCSS(`customCSS1`, `custom css`);").Once().Return(NewValue("", nil))
+
+	patches := ApplyFunc(lorca.New, func(url, dir string, width, height int, customArgs ...string) (lorca.UI, error) {
+		assert.Equal(t, 1024, width)
+		assert.Equal(t, 764, height)
+		assert.Equal(t, 1024, width)
+		assert.Contains(t, customArgs, "--start-fullscreen")
+
+		return ui, nil
+	})
+	defer patches.Reset()
+
+	got, err := NewUI(cfg)
+
+	if assert.NoError(t, err) {
+		assert.IsType(t, (*UI)(nil), got)
+		ui.AssertExpectations(t)
+	}
+}
+
+func TestNewUI_HandlesWindowError(t *testing.T) {
+	cfg := UIConfig{
+		Width:  1024,
+		Height: 764,
+	}
+
+	patches := ApplyFunc(lorca.New, func(url, dir string, width, height int, customArgs ...string) (lorca.UI, error) {
+		return nil, errors.New("test error")
+	})
+	defer patches.Reset()
+
+	_, err := NewUI(cfg)
+
+	assert.Error(t, err)
+	assert.EqualError(t, err, "could not create window: test error")
+}
 
 func TestUI_Done(t *testing.T) {
 	ch := make(chan struct{})

@@ -53,22 +53,6 @@ func (c Config) Validate() error {
 	return nil
 }
 
-// UIConfig contains configuration for the UI.
-type UIConfig struct {
-	Width      int  `yaml:"width"`
-	Height     int  `yaml:"height"`
-	Fullscreen bool `yaml:"fullscreen"`
-}
-
-// Validate validates the ui configuration.
-func (c UIConfig) Validate() error {
-	if c.Width <= 0 || c.Height <= 0 {
-		return errors.New("config: ui width and height muse be greater than zero")
-	}
-
-	return nil
-}
-
 func defaultConfig() Config {
 	return Config{
 		UI: UIConfig{
