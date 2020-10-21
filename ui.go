@@ -1,8 +1,11 @@
 package glass
 
 import (
+	"errors"
 	"fmt"
+	"io/ioutil"
 	"reflect"
+	"strconv"
 	"strings"
 
 	"github.com/glasslabs/looking-glass/module"
@@ -15,26 +18,54 @@ var (
 	fonts = MustAsset("fonts.css")
 )
 
+// UIConfig contains configuration for the UI.
+type UIConfig struct {
+	Width      int      `yaml:"width"`
+	Height     int      `yaml:"height"`
+	Fullscreen bool     `yaml:"fullscreen"`
+	CustomCSS  []string `yaml:"customCss"`
+}
+
+// Validate validates the ui configuration.
+func (c UIConfig) Validate() error {
+	if c.Width <= 0 || c.Height <= 0 {
+		return errors.New("config: ui width and height muse be greater than zero")
+	}
+
+	return nil
+}
+
 // UI implements a ui manager.
 type UI struct {
 	win lorca.UI
 }
 
 // NewUI returns a new UI.
-func NewUI(width, height int, fullscreen bool) (*UI, error) {
+func NewUI(cfg UIConfig) (*UI, error) {
 	var args []string
-	if fullscreen {
+	if cfg.Fullscreen {
 		args = append(args, "--start-fullscreen")
 	}
 	url := dataurl.New(page, "text/html")
-	win, err := lorca.New(url.String(), "", width, height, args...)
+	win, err := lorca.New(url.String(), "", cfg.Width, cfg.Height, args...)
 	if err != nil {
 		return nil, fmt.Errorf("could not create window: %w", err)
 	}
 
 	val := win.Eval("loadCSS(`fonts`, `" + string(fonts) + "`);")
 	if val.Err() != nil {
-		return nil, fmt.Errorf("could not create fonts: %w", err)
+		return nil, fmt.Errorf("could not load fonts: %w", err)
+	}
+	for i, cssPath := range cfg.CustomCSS {
+		b, err := ioutil.ReadFile(cssPath)
+		if err != nil {
+			return nil, fmt.Errorf("could not read custom css %q: %w", cssPath, err)
+		}
+		name := "customCSS" + strconv.Itoa(i+1)
+		val := win.Eval("loadCSS(`" + name + "`, `" + string(b) + "`);")
+		if val.Err() != nil {
+			return nil, fmt.Errorf("could not load custom css %q: %w", cssPath, err)
+		}
 	}
 
 	return &UI{

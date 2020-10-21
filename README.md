@@ -58,6 +58,8 @@ ui:
   width:  640
   height: 480
   fullscreen: true
+  customCss:
+    - path/to/custom.css
 modules:
   - name: simple-clock
     path: github.com/glasslabs/clock
@@ -88,6 +90,10 @@ The height of the chrome window.
 **ui.fullscreen**
 
 If the chrome window should start fullscreen.
+
+**ui.customCSS**
+
+A list of custom css files to load. These can be used to customise the layout of looking glass.
 
 **modules.[].name**
 
