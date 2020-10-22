@@ -5,4 +5,7 @@
 /.gotools
 /.env
 /glass
+
+# CI files
 /dist
+profile.cov
