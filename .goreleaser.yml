@@ -1,0 +1,40 @@
+project_name: looking-glass
+
+builds:
+  - id: looking-glass
+    binary: glass
+    main: ./cmd/glass/
+
+    goos:
+      - darwin
+      - linux
+      - freebsd
+      - openbsd
+      - solaris
+    goarch:
+      - amd64
+      - 386
+      - arm
+      - arm64
+    goarm:
+      - 7
+      - 6
+
+    ignore:
+      - goos: darwin
+        goarch: 386
+
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - '^docs:'
+      - '^doc:'
+      - '^tests:'
+      - '^test:'
+      - '^chore:'
+
+archives:
+  - id: archive
+    name_template: '{{ .ProjectName }}_v{{ .Version }}_{{ .Os }}_{{ .Arch }}{{ if .Arm }}v{{ .Arm }}{{ end }}'
+    format: tar.gz

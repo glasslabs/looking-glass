@@ -11,27 +11,20 @@ cache:
 before_install:
   - curl -sfL https://install.goreleaser.com/github.com/golangci/golangci-lint.sh | bash -s -- -b $GOPATH/bin ${GOLANGCI_LINT_VERSION}
   - go mod download
-  - go get github.com/mitchellh/gox
   - go get github.com/mattn/goveralls
 
 script:
   - make ci
   - goveralls -coverprofile=profile.cov -service=travis-ci -ignore=*.gen.go,internal/*
 
-before_deploy:
-  - gox -os "linux darwin freebsd openbsd" -arch "386 amd64 arm" -output "dist/{{.Dir}}_{{.OS}}_{{.Arch}}" ./cmd/glass
-
 deploy:
-  provider: releases
-  token: $GITHUB_TOKEN
-  file_glob: true
-  file: dist/*
-  cleanup: true
-  on:
-    tags: true
-
+  - provider: script
+    skip_cleanup: true
+    script: curl -sL https://git.io/goreleaser | bash
+    on:
+      tags: true
 
 notifications:
   email:
     on_success: never
-    on_failure: always
+    on_failure: change
