@@ -9,6 +9,7 @@
 Smart mirror platform written in Go leveraging Yaegi.
 
 ## Table of Contents
+* [Requirements](#requirements)
 * [Usage](#usage)
     * [Run](#run) ([Options](#run-options))
 * [Configuration](#configuration)
@@ -17,6 +18,13 @@ Smart mirror platform written in Go leveraging Yaegi.
 * [Modules](#modules)
     * [Package Naming](#package-naming)
     * [Development](#development)
+
+## Requirements
+
+**Chrome**
+
+Chrome or Chromium must be installed. The version must be greater or equal to 70. If looking glass cannot find 
+Chrome, use the `LORCACHROME` environment variable to force the location of your installation. 
 
 ## Usage
 
