@@ -12,6 +12,8 @@ Smart mirror platform written in Go leveraging Yaegi.
 * [Usage](#usage)
     * [Run](#run) ([Options](#run-options))
 * [Configuration](#configuration)
+    * [Configuration Options](#configuration-options)
+    * [Configuration Variables](#configuration-variables)
 * [Modules](#modules)
     * [Package Naming](#package-naming)
     * [Development](#development)
@@ -117,6 +119,18 @@ The position of the module.
 **modules.[].config**
 
 The configuration that will be passed to the module.
+
+### Configuration Variables
+
+The configuration file will be parsed using [Go template syntax](https://golang.org/pkg/text/template/). The available variables are:
+
+**Secrets**
+
+The secrets in the case they appear in the secrets file.
+
+**Env**
+
+The environment variables available when running looking-glass.
 
 ## Modules
 

@@ -4,6 +4,8 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
+	"os"
+	"strings"
 	"text/template"
 
 	"github.com/glasslabs/looking-glass/module"
@@ -75,6 +77,7 @@ func ParseConfig(in []byte, secrets map[string]interface{}) (Config, error) {
 	var buf bytes.Buffer
 	err = tmpl.Execute(&buf, map[string]interface{}{
 		"Secrets": secrets,
+		"Env":     getEnvVars(),
 	})
 	if err != nil {
 		return cfg, fmt.Errorf("invalid configuration template: %w", err)
@@ -82,4 +85,14 @@ func ParseConfig(in []byte, secrets map[string]interface{}) (Config, error) {
 
 	err = yaml.Unmarshal(buf.Bytes(), &cfg)
 	return cfg, err
+}
+
+func getEnvVars() map[string]string {
+	vars := make(map[string]string)
+	for _, v := range os.Environ() {
+		parts := strings.Split(v, "=")
+		vars[parts[0]] = parts[1]
+	}
+
+	return vars
 }
