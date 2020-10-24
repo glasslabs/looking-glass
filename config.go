@@ -66,7 +66,7 @@ func defaultConfig() Config {
 }
 
 // ParseConfig parses configuration from in.
-func ParseConfig(in []byte, secrets map[string]interface{}) (Config, error) {
+func ParseConfig(in []byte, cfgPath string, secrets map[string]interface{}) (Config, error) {
 	cfg := defaultConfig()
 
 	tmpl, err := template.New("config").
@@ -76,8 +76,9 @@ func ParseConfig(in []byte, secrets map[string]interface{}) (Config, error) {
 	}
 	var buf bytes.Buffer
 	err = tmpl.Execute(&buf, map[string]interface{}{
-		"Secrets": secrets,
-		"Env":     getEnvVars(),
+		"ConfigPath": cfgPath,
+		"Secrets":    secrets,
+		"Env":        getEnvVars(),
 	})
 	if err != nil {
 		return cfg, fmt.Errorf("invalid configuration template: %w", err)

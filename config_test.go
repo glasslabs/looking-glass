@@ -196,6 +196,8 @@ ui:
   width: 1024
   height: 768
   fullscreen: false
+  customCss:
+    - {{ .ConfigPath }}/assets/css/main.css
 modules:
   - name: test-mod
     path: some/path
@@ -206,6 +208,9 @@ modules:
 					Width:      1024,
 					Height:     768,
 					Fullscreen: false,
+					CustomCSS: []string{
+						"/some/path/assets/css/main.css",
+					},
 				},
 				Modules: []module.Descriptor{
 					{
@@ -267,7 +272,7 @@ modules:
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			got, err := glass.ParseConfig(test.in, test.secrets)
+			got, err := glass.ParseConfig(test.in, "/some/path", test.secrets)
 
 			if test.wantErr {
 				assert.Error(t, err)
