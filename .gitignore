@@ -1,6 +1,12 @@
+# Mac OS X files
+.DS_Store
+
 # IDE commons
 .idea
+.vscode/*
+.history/
 
+# Misc & Project specific ignores
 *.gen.go
 /.gotools
 /.env
@@ -9,3 +15,20 @@
 # CI files
 /dist
 profile.cov
+
+# Test binary, build with `go test -c`
+*.test
+
+# Output of the go coverage tool, specifically when used with LiteIDE
+*.out
+
+# Project-local glide cache, RE: https://github.com/Masterminds/glide/issues/736
+.glide/
+
+# Binaries for programs and plugins
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
