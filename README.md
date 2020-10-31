@@ -24,7 +24,15 @@ Smart mirror platform written in Go leveraging Yaegi.
 **Chrome**
 
 Chrome or Chromium must be installed. The version must be greater or equal to 70. If looking glass cannot find 
-Chrome, use the `LORCACHROME` environment variable to force the location of your installation. 
+Chrome, use the `LORCACHROME` environment variable to force the location of your installation.
+
+## Install
+
+On a fresh install of Raspberry Pi OS Lite, run the following command:
+
+```shell
+curl -sL https://git.io/looking_glass | bash
+``` 
 
 ## Usage
 
