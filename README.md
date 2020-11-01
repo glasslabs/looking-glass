@@ -31,7 +31,7 @@ Chrome, use the `LORCACHROME` environment variable to force the location of your
 On a fresh install of Raspberry Pi OS Lite, run the following command:
 
 ```shell
-curl -sL https://git.io/looking_glass | bash
+bash -c "$(curl -fsSL https://git.io/looking_glass)"
 ``` 
 
 ## Usage
