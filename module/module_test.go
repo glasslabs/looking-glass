@@ -130,7 +130,9 @@ func TestDescriptor_Validate(t *testing.T) {
 func TestService_Extract(t *testing.T) {
 	dir, err := os.MkdirTemp("./", "extract-test")
 	require.NoError(t, err)
-	defer os.RemoveAll(dir)
+	t.Cleanup(func() {
+		_ = os.RemoveAll(dir)
+	})
 
 	b, err := os.ReadFile("../testdata/module@v0.1.0.zip")
 	require.NoError(t, err)
@@ -190,7 +192,9 @@ func TestService_Extract(t *testing.T) {
 func TestService_ExtractLeavesUserModule(t *testing.T) {
 	dir, err := os.MkdirTemp("./", "extract-test")
 	require.NoError(t, err)
-	defer os.RemoveAll(dir)
+	t.Cleanup(func() {
+		_ = os.RemoveAll(dir)
+	})
 
 	err = os.MkdirAll(filepath.Join(dir, "src/test-module"), 0777)
 	require.NoError(t, err)

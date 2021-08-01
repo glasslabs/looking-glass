@@ -34,7 +34,9 @@ func TestProxyClient_VersionResolvesVersion(t *testing.T) {
 	srv := httptest.NewServer(t)
 	srv.On(http.MethodGet, "/github.com/glasslabs/test/@v/main.info").
 		ReturnsString(http.StatusOK, `{"Version":"v0.1.0"}`)
-	defer srv.Close()
+	t.Cleanup(func() {
+		srv.Close()
+	})
 
 	c, err := module.NewProxyClient(srv.URL())
 	require.NoError(t, err)
@@ -52,7 +54,9 @@ func TestProxyClient_VersionResolvesLatest(t *testing.T) {
 	srv := httptest.NewServer(t)
 	srv.On(http.MethodGet, "/github.com/glasslabs/test/@latest").
 		ReturnsString(http.StatusOK, `{"Version":"v0.1.0"}`)
-	defer srv.Close()
+	t.Cleanup(func() {
+		srv.Close()
+	})
 
 	c, err := module.NewProxyClient(srv.URL())
 	require.NoError(t, err)
@@ -70,7 +74,9 @@ func TestProxyClient_VersionHandlesError(t *testing.T) {
 	srv := httptest.NewServer(t)
 	srv.On(http.MethodGet, "/github.com/glasslabs/test/@v/main.info").
 		ReturnsString(http.StatusNotFound, `Not Found`)
-	defer srv.Close()
+	t.Cleanup(func() {
+		srv.Close()
+	})
 
 	c, err := module.NewProxyClient(srv.URL())
 	require.NoError(t, err)
@@ -85,7 +91,9 @@ func TestProxyClient_VersionHandlesBadJSON(t *testing.T) {
 	srv := httptest.NewServer(t)
 	srv.On(http.MethodGet, "/github.com/glasslabs/test/@v/main.info").
 		ReturnsString(http.StatusOK, `{`)
-	defer srv.Close()
+	t.Cleanup(func() {
+		srv.Close()
+	})
 
 	c, err := module.NewProxyClient(srv.URL())
 	require.NoError(t, err)
@@ -100,7 +108,9 @@ func TestProxyClient_Download(t *testing.T) {
 	srv := httptest.NewServer(t)
 	srv.On(http.MethodGet, "/test/@v/main.zip").
 		ReturnsString(http.StatusOK, `1234`)
-	defer srv.Close()
+	t.Cleanup(func() {
+		srv.Close()
+	})
 
 	c, err := module.NewProxyClient(srv.URL())
 	require.NoError(t, err)
@@ -121,7 +131,9 @@ func TestProxyClient_DownloadHandlesError(t *testing.T) {
 	srv := httptest.NewServer(t)
 	srv.On(http.MethodGet, "/test/@v/main.zip").
 		ReturnsStatus(http.StatusNotFound)
-	defer srv.Close()
+	t.Cleanup(func() {
+		srv.Close()
+	})
 
 	c, err := module.NewProxyClient(srv.URL())
 	require.NoError(t, err)
@@ -134,7 +146,9 @@ func TestProxyClient_DownloadHandlesError(t *testing.T) {
 func TestNewCachedClient(t *testing.T) {
 	dir, err := os.MkdirTemp("./", "cache-test")
 	require.NoError(t, err)
-	defer os.RemoveAll(dir)
+	t.Cleanup(func() {
+		_ = os.RemoveAll(dir)
+	})
 
 	c := &MockClient{}
 
@@ -156,7 +170,9 @@ func TestNewCachedClient_HandlesBadPath(t *testing.T) {
 func TestCachedClient_Version(t *testing.T) {
 	dir, err := os.MkdirTemp("./", "cache-test")
 	require.NoError(t, err)
-	defer os.RemoveAll(dir)
+	t.Cleanup(func() {
+		_ = os.RemoveAll(dir)
+	})
 
 	c := &MockClient{}
 	c.On("Version", "test", "main").Return(mod.Version{Path: "test", Version: "v0.1.0"}, nil)
@@ -176,7 +192,9 @@ func TestCachedClient_Version(t *testing.T) {
 func TestCachedClient_VersionHandlesError(t *testing.T) {
 	dir, err := os.MkdirTemp("./", "cache-test")
 	require.NoError(t, err)
-	defer os.RemoveAll(dir)
+	t.Cleanup(func() {
+		_ = os.RemoveAll(dir)
+	})
 
 	c := &MockClient{}
 	c.On("Version", "test", "main").Return(mod.Version{}, errors.New("test"))
@@ -192,7 +210,9 @@ func TestCachedClient_VersionHandlesError(t *testing.T) {
 func TestCachedClient_Download(t *testing.T) {
 	dir, err := os.MkdirTemp("./", "cache-test")
 	require.NoError(t, err)
-	defer os.RemoveAll(dir)
+	t.Cleanup(func() {
+		_ = os.RemoveAll(dir)
+	})
 
 	r := io.NopCloser(bytes.NewReader([]byte("1234")))
 	c := &MockClient{}
