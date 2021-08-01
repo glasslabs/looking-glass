@@ -27,6 +27,9 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-go-
 
+      - name: Generate Static Assets
+        run: make static-assets
+
       - name: Run GoReleaser
         uses: goreleaser/goreleaser-action@v2
         with:
