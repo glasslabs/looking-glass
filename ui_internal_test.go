@@ -322,6 +322,7 @@ func (v Value) Float() (f float32)     { v.To(&f); return f }
 func (v Value) Int() (i int)           { v.To(&i); return i }
 func (v Value) String() (s string)     { v.To(&s); return s }
 func (v Value) Bool() (b bool)         { v.To(&b); return b }
+func (v Value) Bytes() []byte          { return v.raw }
 func (v Value) Array() (values []lorca.Value) {
 	array := []json.RawMessage{}
 	v.To(&array)

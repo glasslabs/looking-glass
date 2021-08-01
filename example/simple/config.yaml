@@ -3,15 +3,22 @@ ui:
   height: 760
   fullscreen: false
 modules:
-  - name: simple-clock
-    path: github.com/glasslabs/clock
-    version: latest
+#  - name: simple-clock
+#    path: github.com/glasslabs/clock
+#    version: latest
+#    position: top:right
+#  - name: simple-weather
+#    path: github.com/glasslabs/weather
+#    version: latest
+#    position: top:left
+#    config:
+#      locationId: 996506
+#      appId: {{ .Secrets.weather.appId }}
+#      units: metric
+  - name: simple-calendar
+    path: calendar
     position: top:right
-  - name: simple-weather
-    path: github.com/glasslabs/weather
-    version: latest
-    position: top:left
     config:
-      locationId: 996506
-      appId: {{ .Secrets.weather.appId }}
-      units: metric
+      calendars:
+        - url: https://www.calendarlabs.com/ical-calendar/ics/68/South_Africa_Holidays.ics
+        - url: https://calendar.google.com/calendar/ical/c_qpqjholuuctsur6u5v1027jsic%40group.calendar.google.com/private-3b61ee948b88b675353138b13e01249c/basic.ics

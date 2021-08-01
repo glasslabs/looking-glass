@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"errors"
 	"io"
-	"io/ioutil"
+
 	"net/http"
 	"os"
 	"testing"
@@ -111,7 +111,7 @@ func TestProxyClient_Download(t *testing.T) {
 		if !assert.Implements(t, (*io.ReadCloser)(nil), got) {
 			return
 		}
-		data, _ := ioutil.ReadAll(got)
+		data, _ := io.ReadAll(got)
 		assert.Equal(t, "1234", string(data))
 		srv.AssertExpectations()
 	}
@@ -132,7 +132,7 @@ func TestProxyClient_DownloadHandlesError(t *testing.T) {
 }
 
 func TestNewCachedClient(t *testing.T) {
-	dir, err := ioutil.TempDir("./", "cache-test")
+	dir, err := os.MkdirTemp("./", "cache-test")
 	require.NoError(t, err)
 	defer os.RemoveAll(dir)
 
@@ -154,7 +154,7 @@ func TestNewCachedClient_HandlesBadPath(t *testing.T) {
 }
 
 func TestCachedClient_Version(t *testing.T) {
-	dir, err := ioutil.TempDir("./", "cache-test")
+	dir, err := os.MkdirTemp("./", "cache-test")
 	require.NoError(t, err)
 	defer os.RemoveAll(dir)
 
@@ -174,7 +174,7 @@ func TestCachedClient_Version(t *testing.T) {
 }
 
 func TestCachedClient_VersionHandlesError(t *testing.T) {
-	dir, err := ioutil.TempDir("./", "cache-test")
+	dir, err := os.MkdirTemp("./", "cache-test")
 	require.NoError(t, err)
 	defer os.RemoveAll(dir)
 
@@ -190,11 +190,11 @@ func TestCachedClient_VersionHandlesError(t *testing.T) {
 }
 
 func TestCachedClient_Download(t *testing.T) {
-	dir, err := ioutil.TempDir("./", "cache-test")
+	dir, err := os.MkdirTemp("./", "cache-test")
 	require.NoError(t, err)
 	defer os.RemoveAll(dir)
 
-	r := ioutil.NopCloser(bytes.NewReader([]byte("1234")))
+	r := io.NopCloser(bytes.NewReader([]byte("1234")))
 	c := &MockClient{}
 	c.On("Download", mod.Version{Path: "test", Version: "main"}).Once().Return(r, nil)
 
@@ -207,7 +207,7 @@ func TestCachedClient_Download(t *testing.T) {
 		if !assert.Implements(t, (*io.ReadCloser)(nil), got) {
 			return
 		}
-		data, _ := ioutil.ReadAll(got)
+		data, _ := io.ReadAll(got)
 		got.Close()
 		assert.Equal(t, "1234", string(data))
 	}
@@ -219,7 +219,7 @@ func TestCachedClient_Download(t *testing.T) {
 		if !assert.Implements(t, (*io.ReadCloser)(nil), got) {
 			return
 		}
-		data, _ := ioutil.ReadAll(got)
+		data, _ := io.ReadAll(got)
 		got.Close()
 		assert.Equal(t, "1234", string(data))
 	}

@@ -3,8 +3,8 @@ package main
 import (
 	"bytes"
 	"flag"
-	"io/ioutil"
 	"log"
+	"os"
 
 	"github.com/traefik/yaegi/extract"
 )
@@ -29,7 +29,7 @@ func main() {
 		return
 	}
 
-	if err := ioutil.WriteFile(*outputFile, buf.Bytes(), 0600); err != nil {
+	if err := os.WriteFile(*outputFile, buf.Bytes(), 0600); err != nil {
 		log.Println(err)
 		return
 	}

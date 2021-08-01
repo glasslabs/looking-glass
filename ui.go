@@ -1,10 +1,10 @@
 package glass
 
 import (
+	_ "embed"
 	"errors"
 	"fmt"
-	"io/ioutil"
-	"reflect"
+	"os"
 	"strconv"
 	"strings"
 
@@ -14,8 +14,11 @@ import (
 )
 
 var (
-	page  = MustAsset("index.html")
-	fonts = MustAsset("fonts.css")
+	//go:embed webui/index.html
+	page []byte
+
+	//go:embed webui/fonts.css
+	fonts []byte
 )
 
 // UIConfig contains configuration for the UI.
@@ -57,7 +60,7 @@ func NewUI(cfg UIConfig) (*UI, error) {
 		return nil, fmt.Errorf("could not load fonts: %w", err)
 	}
 	for i, cssPath := range cfg.CustomCSS {
-		b, err := ioutil.ReadFile(cssPath)
+		b, err := os.ReadFile(cssPath)
 		if err != nil {
 			return nil, fmt.Errorf("could not read custom css %q: %w", cssPath, err)
 		}
@@ -85,12 +88,7 @@ func (ui *UI) Eval(js string) (interface{}, error) {
 		return nil, v.Err()
 	}
 
-	// TODO(nick): Remove this once lorca #126 is resolved.
-	// This is a really nasty work around due to not being
-	// able to detect a nil return.
-	val := reflect.ValueOf(v)
-	bv := val.FieldByName("raw")
-	if bv.Len() == 0 {
+	if len(v.Bytes()) == 0 {
 		return nil, nil
 	}
 

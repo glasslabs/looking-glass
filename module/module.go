@@ -7,7 +7,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"os"
 	"path"
 	"path/filepath"
@@ -159,7 +158,7 @@ func (s Service) Extract(desc Descriptor) error {
 			// Not our path or something we cannot touch.
 			return nil
 		}
-		if ver, err := ioutil.ReadFile(markerPath); err == nil && m.Version == string(ver) {
+		if ver, err := os.ReadFile(markerPath); err == nil && m.Version == string(ver) {
 			s.debug("module is at correct version", "path", modPath)
 			// The correct version is already extracted. Nothing to do.
 			return nil
@@ -167,7 +166,7 @@ func (s Service) Extract(desc Descriptor) error {
 
 		// The path exists but is the wrong version, remove it.
 		s.debug("cleaning module path", "path", modPath)
-		if err := s.cleanPath(modPath); err != nil {
+		if err := os.RemoveAll(modPath); err != nil {
 			return fmt.Errorf("could not remove old module: %w", err)
 		}
 	}
@@ -184,29 +183,10 @@ func (s Service) Extract(desc Descriptor) error {
 	if err := s.unzip(z, m, modPath); err != nil {
 		return fmt.Errorf("could not extract module: %w", err)
 	}
-	if err := ioutil.WriteFile(markerPath, []byte(m.Version), 0444); err != nil {
+	if err := os.WriteFile(markerPath, []byte(m.Version), 0444); err != nil {
 		return fmt.Errorf("could not write module marker: %w", err)
 	}
 
-	return nil
-}
-
-func (s Service) cleanPath(path string) error {
-	d, err := os.Open(path)
-	if err != nil {
-		return err
-	}
-	defer d.Close()
-	names, err := d.Readdirnames(-1)
-	if err != nil {
-		return err
-	}
-	for _, name := range names {
-		err = os.RemoveAll(filepath.Join(path, name))
-		if err != nil {
-			return err
-		}
-	}
 	return nil
 }
 

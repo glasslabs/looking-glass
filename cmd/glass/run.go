@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"os/signal"
 	"path/filepath"
@@ -87,7 +86,7 @@ func loadSecrets(file string) (map[string]interface{}, error) {
 		return nil, nil
 	}
 
-	in, err := ioutil.ReadFile(file)
+	in, err := os.ReadFile(file)
 	if err != nil {
 		return nil, fmt.Errorf("could not read secrets file: %w", err)
 	}
@@ -99,7 +98,7 @@ func loadSecrets(file string) (map[string]interface{}, error) {
 }
 
 func loadConfig(file string, secrets map[string]interface{}) (glass.Config, error) {
-	in, err := ioutil.ReadFile(file)
+	in, err := os.ReadFile(file)
 	if err != nil {
 		return glass.Config{}, fmt.Errorf("could not read configuration file: %w", err)
 	}
