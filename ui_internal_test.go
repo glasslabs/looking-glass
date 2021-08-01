@@ -37,7 +37,9 @@ func TestNewUI(t *testing.T) {
 
 		return ui, nil
 	})
-	defer patches.Reset()
+	t.Cleanup(func() {
+		patches.Reset()
+	})
 
 	got, err := NewUI(cfg)
 
@@ -56,7 +58,9 @@ func TestNewUI_HandlesWindowError(t *testing.T) {
 	patches := ApplyFunc(lorca.New, func(url, dir string, width, height int, customArgs ...string) (lorca.UI, error) {
 		return nil, errors.New("test error")
 	})
-	defer patches.Reset()
+	t.Cleanup(func() {
+		patches.Reset()
+	})
 
 	_, err := NewUI(cfg)
 
@@ -66,7 +70,9 @@ func TestNewUI_HandlesWindowError(t *testing.T) {
 
 func TestUI_Done(t *testing.T) {
 	ch := make(chan struct{})
-	defer close(ch)
+	t.Cleanup(func() {
+		close(ch)
+	})
 	win := &MockLorcaUI{}
 	win.On("Done").Return(ch)
 	ui := &UI{win: win}
@@ -322,6 +328,7 @@ func (v Value) Float() (f float32)     { v.To(&f); return f }
 func (v Value) Int() (i int)           { v.To(&i); return i }
 func (v Value) String() (s string)     { v.To(&s); return s }
 func (v Value) Bool() (b bool)         { v.To(&b); return b }
+func (v Value) Bytes() []byte          { return v.raw }
 func (v Value) Array() (values []lorca.Value) {
 	array := []json.RawMessage{}
 	v.To(&array)

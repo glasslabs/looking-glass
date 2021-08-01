@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"os/signal"
 	"path/filepath"
@@ -41,7 +40,9 @@ func run(c *cli.Context) error {
 	if err != nil {
 		return err
 	}
-	defer ui.Close()
+	defer func() {
+		_ = ui.Close()
+	}()
 
 	cachePath, err := ensureCachePath(modPath)
 	if err != nil {
@@ -69,7 +70,9 @@ func run(c *cli.Context) error {
 		if err != nil {
 			return err
 		}
-		defer mod.Close()
+		defer func() {
+			_ = mod.Close()
+		}()
 	}
 
 	sigs := make(chan os.Signal, 1)
@@ -87,7 +90,7 @@ func loadSecrets(file string) (map[string]interface{}, error) {
 		return nil, nil
 	}
 
-	in, err := ioutil.ReadFile(file)
+	in, err := os.ReadFile(file)
 	if err != nil {
 		return nil, fmt.Errorf("could not read secrets file: %w", err)
 	}
@@ -99,7 +102,7 @@ func loadSecrets(file string) (map[string]interface{}, error) {
 }
 
 func loadConfig(file string, secrets map[string]interface{}) (glass.Config, error) {
-	in, err := ioutil.ReadFile(file)
+	in, err := os.ReadFile(file)
 	if err != nil {
 		return glass.Config{}, fmt.Errorf("could not read configuration file: %w", err)
 	}
@@ -118,7 +121,7 @@ func ensureCachePath(modPath string) (string, error) {
 	if _, err := os.Stat(p); err == nil {
 		return p, nil
 	}
-	if err := os.MkdirAll(p, 0777); err != nil {
+	if err := os.MkdirAll(p, 0750); err != nil {
 		return "", fmt.Errorf("could not create cache path %q: %w", p, err)
 	}
 	return p, nil

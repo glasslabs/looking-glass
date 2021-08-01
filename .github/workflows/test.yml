@@ -30,6 +30,9 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-go-
 
+      - name: Generate Static Assets
+        run: make static-assets
+
       - name: Run linter
         uses: golangci/golangci-lint-action@v2
         with:

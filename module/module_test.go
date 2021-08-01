@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"context"
 	"io"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"testing"
@@ -129,16 +128,18 @@ func TestDescriptor_Validate(t *testing.T) {
 }
 
 func TestService_Extract(t *testing.T) {
-	dir, err := ioutil.TempDir("./", "extract-test")
+	dir, err := os.MkdirTemp("./", "extract-test")
 	require.NoError(t, err)
-	defer os.RemoveAll(dir)
+	t.Cleanup(func() {
+		_ = os.RemoveAll(dir)
+	})
 
-	b, err := ioutil.ReadFile("../testdata/module@v0.1.0.zip")
+	b, err := os.ReadFile("../testdata/module@v0.1.0.zip")
 	require.NoError(t, err)
-	r1 := ioutil.NopCloser(bytes.NewReader(b))
-	b, err = ioutil.ReadFile("../testdata/module@v0.2.0.zip")
+	r1 := io.NopCloser(bytes.NewReader(b))
+	b, err = os.ReadFile("../testdata/module@v0.2.0.zip")
 	require.NoError(t, err)
-	r2 := ioutil.NopCloser(bytes.NewReader(b))
+	r2 := io.NopCloser(bytes.NewReader(b))
 	c := &MockClient{}
 	c.On("Version", "test-module", "main").Twice().Return(mod.Version{Path: "test-module", Version: "v0.1.0"}, nil)
 	c.On("Version", "test-module", "latest").Once().Return(mod.Version{Path: "test-module", Version: "v0.2.0"}, nil)
@@ -155,9 +156,9 @@ func TestService_Extract(t *testing.T) {
 	})
 
 	if assert.NoError(t, err) {
-		b, _ := ioutil.ReadFile(filepath.Join(dir, "src/test-module/main.go"))
+		b, _ := os.ReadFile(filepath.Join(dir, "src/test-module/main.go"))
 		assert.Equal(t, "test-module\n", string(b))
-		b, _ = ioutil.ReadFile(filepath.Join(dir, "src/test-module/.looking-glass"))
+		b, _ = os.ReadFile(filepath.Join(dir, "src/test-module/.looking-glass"))
 		assert.Equal(t, "v0.1.0", string(b))
 	}
 
@@ -168,9 +169,9 @@ func TestService_Extract(t *testing.T) {
 	})
 
 	if assert.NoError(t, err) {
-		b, _ := ioutil.ReadFile(filepath.Join(dir, "src/test-module/main.go"))
+		b, _ := os.ReadFile(filepath.Join(dir, "src/test-module/main.go"))
 		assert.Equal(t, "test-module\n", string(b))
-		b, _ = ioutil.ReadFile(filepath.Join(dir, "src/test-module/.looking-glass"))
+		b, _ = os.ReadFile(filepath.Join(dir, "src/test-module/.looking-glass"))
 		assert.Equal(t, "v0.1.0", string(b))
 	}
 
@@ -181,21 +182,23 @@ func TestService_Extract(t *testing.T) {
 	})
 
 	if assert.NoError(t, err) {
-		b, _ := ioutil.ReadFile(filepath.Join(dir, "src/test-module/main.go"))
+		b, _ := os.ReadFile(filepath.Join(dir, "src/test-module/main.go"))
 		assert.Equal(t, "test-module\n", string(b))
-		b, _ = ioutil.ReadFile(filepath.Join(dir, "src/test-module/.looking-glass"))
+		b, _ = os.ReadFile(filepath.Join(dir, "src/test-module/.looking-glass"))
 		assert.Equal(t, "v0.2.0", string(b))
 	}
 }
 
 func TestService_ExtractLeavesUserModule(t *testing.T) {
-	dir, err := ioutil.TempDir("./", "extract-test")
+	dir, err := os.MkdirTemp("./", "extract-test")
 	require.NoError(t, err)
-	defer os.RemoveAll(dir)
+	t.Cleanup(func() {
+		_ = os.RemoveAll(dir)
+	})
 
 	err = os.MkdirAll(filepath.Join(dir, "src/test-module"), 0777)
 	require.NoError(t, err)
-	err = ioutil.WriteFile(filepath.Join(dir, "src/test-module/main.go"), []byte("something"), 0544)
+	err = os.WriteFile(filepath.Join(dir, "src/test-module/main.go"), []byte("something"), 0544)
 	require.NoError(t, err)
 
 	c := &MockClient{}
@@ -211,7 +214,7 @@ func TestService_ExtractLeavesUserModule(t *testing.T) {
 	})
 
 	if assert.NoError(t, err) {
-		b, _ := ioutil.ReadFile(filepath.Join(dir, "src/test-module/main.go"))
+		b, _ := os.ReadFile(filepath.Join(dir, "src/test-module/main.go"))
 		assert.Equal(t, "something", string(b))
 		_, err := os.Stat(filepath.Join(dir, "src/test-module/.looking-glass"))
 		assert.Error(t, err)
