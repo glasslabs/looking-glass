@@ -56,11 +56,17 @@ func (c *ProxyClient) Version(p, ver string) (module.Version, error) {
 	u := *c.url
 	u.Path = rawpath
 
-	resp, err := http.Get(u.String())
+	req, err := http.NewRequest(http.MethodGet, u.String(), nil)
+	if err != nil {
+		return m, fmt.Errorf("could not create request: %w", err)
+	}
+	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		return m, fmt.Errorf("could not resolve version %q: %w", rawpath, err)
 	}
-	defer resp.Body.Close()
+	defer func() {
+		_ = resp.Body.Close()
+	}()
 	if resp.StatusCode != 200 {
 		return m, fmt.Errorf("version %s does not exist for module %q", v, p)
 	}
@@ -76,7 +82,11 @@ func (c *ProxyClient) Download(m module.Version) (io.ReadCloser, error) {
 	u := *c.url
 	u.Path = rawpath
 
-	resp, err := http.Get(u.String()) //nolint:bodyclose
+	req, err := http.NewRequest(http.MethodGet, u.String(), nil)
+	if err != nil {
+		return nil, fmt.Errorf("could not create request: %w", err)
+	}
+	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		return nil, fmt.Errorf("could not fetch module %q: %w", rawpath, err)
 	}
@@ -113,7 +123,7 @@ func (c *CachedClient) Version(path, ver string) (module.Version, error) {
 func (c *CachedClient) Download(m module.Version) (io.ReadCloser, error) {
 	p := filepath.Join(c.path, m.Path, m.Version+".zip")
 	if _, err := os.Stat(p); err == nil {
-		if rc, err := os.Open(p); err == nil {
+		if rc, err := os.Open(filepath.Clean(p)); err == nil {
 			return rc, nil
 		}
 		// If there is an error opening the cache file we should replace it.
@@ -123,12 +133,14 @@ func (c *CachedClient) Download(m module.Version) (io.ReadCloser, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer rc.Close()
+	defer func() {
+		_ = rc.Close()
+	}()
 
-	if err := os.MkdirAll(filepath.Dir(p), 0777); err != nil {
+	if err := os.MkdirAll(filepath.Dir(p), 0750); err != nil {
 		return nil, fmt.Errorf("could not create cache path %q", filepath.Dir(p))
 	}
-	f, err := os.OpenFile(p, os.O_CREATE|os.O_TRUNC|os.O_RDWR|os.O_EXCL, 0444)
+	f, err := os.OpenFile(filepath.Clean(p), os.O_CREATE|os.O_TRUNC|os.O_RDWR|os.O_EXCL, 0444)
 	if err != nil {
 		return nil, fmt.Errorf("could not write to cache file %q: %w", p, err)
 	}

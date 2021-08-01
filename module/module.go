@@ -151,9 +151,9 @@ func (s Service) Extract(desc Descriptor) error {
 
 	modPath := filepath.Join(s.path, srcPath, desc.Path)
 	markerPath := filepath.Join(modPath, markerFile)
-	if _, err := os.Stat(modPath); err == nil {
+	if _, err = os.Stat(modPath); err == nil {
 		// This might be a user controlled path, check for the marker.
-		if _, err := os.Stat(markerPath); err != nil {
+		if _, err = os.Stat(markerPath); err != nil {
 			s.debug("path seems to be a user module path", "path", modPath)
 			// Not our path or something we cannot touch.
 			return nil
@@ -166,7 +166,7 @@ func (s Service) Extract(desc Descriptor) error {
 
 		// The path exists but is the wrong version, remove it.
 		s.debug("cleaning module path", "path", modPath)
-		if err := os.RemoveAll(modPath); err != nil {
+		if err = os.RemoveAll(modPath); err != nil {
 			return fmt.Errorf("could not remove old module: %w", err)
 		}
 	}
@@ -176,14 +176,16 @@ func (s Service) Extract(desc Descriptor) error {
 	if err != nil {
 		return err
 	}
-	defer z.Close()
-	if err := os.MkdirAll(modPath, 0777); err != nil {
+	defer func() {
+		_ = z.Close()
+	}()
+	if err = os.MkdirAll(modPath, 0750); err != nil {
 		return fmt.Errorf("could not create module path %q: %w", modPath, err)
 	}
-	if err := s.unzip(z, m, modPath); err != nil {
+	if err = s.unzip(z, m, modPath); err != nil {
 		return fmt.Errorf("could not extract module: %w", err)
 	}
-	if err := os.WriteFile(markerPath, []byte(m.Version), 0444); err != nil {
+	if err = os.WriteFile(markerPath, []byte(m.Version), 0440); err != nil {
 		return fmt.Errorf("could not write module marker: %w", err)
 	}
 
@@ -212,23 +214,23 @@ func (s Service) unzip(r io.Reader, m module.Version, path string) error {
 			continue
 		}
 		dst := filepath.Join(path, name)
-		if err := os.MkdirAll(filepath.Dir(dst), 0777); err != nil {
+		if err := os.MkdirAll(filepath.Dir(dst), 0750); err != nil {
 			return err
 		}
-		w, err := os.OpenFile(dst, os.O_WRONLY|os.O_CREATE|os.O_EXCL, 0444)
+		w, err := os.OpenFile(filepath.Clean(dst), os.O_WRONLY|os.O_CREATE|os.O_EXCL, 0440)
 		if err != nil {
 			return err
 		}
 		r, err := zf.Open()
 		if err != nil {
-			w.Close()
+			_ = w.Close()
 			return err
 		}
 		lr := &io.LimitedReader{R: r, N: int64(zf.UncompressedSize64) + 1}
 		_, err = io.Copy(w, lr)
-		r.Close()
+		_ = r.Close()
 		if err != nil {
-			w.Close()
+			_ = w.Close()
 			return err
 		}
 		if err := w.Close(); err != nil {
@@ -256,9 +258,15 @@ func (s Service) Run(ctx context.Context, desc Descriptor, ui types.UI, log type
 	}
 
 	i := interp.New(interp.Options{GoPath: s.path})
-	i.Use(stdlib.Symbols)
-	i.Use(unsafe.Symbols)
-	i.Use(stypes.Symbols)
+	if err := i.Use(stdlib.Symbols); err != nil {
+		return nil, fmt.Errorf("module coule not use stdlib symbols: %w", err)
+	}
+	if err := i.Use(unsafe.Symbols); err != nil {
+		return nil, fmt.Errorf("module coule not use unsafe symbols: %w", err)
+	}
+	if err := i.Use(stypes.Symbols); err != nil {
+		return nil, fmt.Errorf("module coule not use types symbols: %w", err)
+	}
 
 	_, err := i.Eval(fmt.Sprintf(`import "%s"`, desc.Path))
 	if err != nil {
