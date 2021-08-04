@@ -70,7 +70,7 @@ func (c *ProxyClient) Version(p, ver string) (module.Version, error) {
 	if resp.StatusCode != 200 {
 		return m, fmt.Errorf("version %s does not exist for module %q", v, p)
 	}
-	if err := json.NewDecoder(resp.Body).Decode(&m); err != nil {
+	if err = json.NewDecoder(resp.Body).Decode(&m); err != nil {
 		return m, fmt.Errorf("could not resolve version %q: %w", rawpath, err)
 	}
 	return m, nil
@@ -137,18 +137,18 @@ func (c *CachedClient) Download(m module.Version) (io.ReadCloser, error) {
 		_ = rc.Close()
 	}()
 
-	if err := os.MkdirAll(filepath.Dir(p), 0750); err != nil {
+	if err = os.MkdirAll(filepath.Dir(p), 0750); err != nil {
 		return nil, fmt.Errorf("could not create cache path %q", filepath.Dir(p))
 	}
 	f, err := os.OpenFile(filepath.Clean(p), os.O_CREATE|os.O_TRUNC|os.O_RDWR|os.O_EXCL, 0444)
 	if err != nil {
 		return nil, fmt.Errorf("could not write to cache file %q: %w", p, err)
 	}
-	if _, err := io.Copy(f, rc); err != nil {
+	if _, err = io.Copy(f, rc); err != nil {
 		return nil, fmt.Errorf("could not write to cache file %q: %w", p, err)
 	}
 
-	if _, err := f.Seek(0, 0); err != nil {
+	if _, err = f.Seek(0, 0); err != nil {
 		return nil, fmt.Errorf("could not read cache file %q: %w", p, err)
 	}
 	return f, err

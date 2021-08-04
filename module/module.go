@@ -214,7 +214,7 @@ func (s Service) unzip(r io.Reader, m module.Version, path string) error {
 			continue
 		}
 		dst := filepath.Join(path, name)
-		if err := os.MkdirAll(filepath.Dir(dst), 0750); err != nil {
+		if err = os.MkdirAll(filepath.Dir(dst), 0750); err != nil {
 			return err
 		}
 		w, err := os.OpenFile(filepath.Clean(dst), os.O_WRONLY|os.O_CREATE|os.O_EXCL, 0440)
@@ -233,7 +233,7 @@ func (s Service) unzip(r io.Reader, m module.Version, path string) error {
 			_ = w.Close()
 			return err
 		}
-		if err := w.Close(); err != nil {
+		if err = w.Close(); err != nil {
 			return err
 		}
 		if lr.N <= 0 {
