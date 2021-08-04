@@ -6,24 +6,27 @@ import (
 	glass "github.com/glasslabs/looking-glass"
 	"github.com/glasslabs/looking-glass/module"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestParseSecrets(t *testing.T) {
 	tests := []struct {
 		name    string
 		in      []byte
-		wantErr bool
 		want    map[string]interface{}
+		wantErr require.ErrorAssertionFunc
 	}{
 		{
-			name: "valid config",
-			in:   []byte("test:\n  something: 1"),
-			want: map[string]interface{}{"test": map[string]interface{}{"something": 1}},
+			name:    "valid config",
+			in:      []byte("test:\n  something: 1"),
+			want:    map[string]interface{}{"test": map[string]interface{}{"something": 1}},
+			wantErr: require.NoError,
 		},
 		{
 			name:    "invalid config",
 			in:      []byte("test: something: 1"),
-			wantErr: true,
+			want:    map[string]interface{}{},
+			wantErr: require.Error,
 		},
 	}
 
@@ -31,13 +34,8 @@ func TestParseSecrets(t *testing.T) {
 		t.Run(test.name, func(t *testing.T) {
 			got, err := glass.ParseSecrets(test.in)
 
-			if test.wantErr {
-				assert.Error(t, err)
-				return
-			}
-			if assert.NoError(t, err) {
-				assert.Equal(t, test.want, got)
-			}
+			test.wantErr(t, err)
+			assert.Equal(t, test.want, got)
 		})
 	}
 }
@@ -186,8 +184,8 @@ func TestParseConfig(t *testing.T) {
 		name    string
 		in      []byte
 		secrets map[string]interface{}
-		wantErr bool
 		want    glass.Config
+		wantErr require.ErrorAssertionFunc
 	}{
 		{
 			name: "valid config",
@@ -220,6 +218,7 @@ modules:
 					},
 				},
 			},
+			wantErr: require.NoError,
 		},
 		{
 			name: "valid config with secrets",
@@ -248,11 +247,19 @@ modules:
 					},
 				},
 			},
+			wantErr: require.NoError,
 		},
 		{
-			name:    "invalid config",
-			in:      []byte("test: something: 1"),
-			wantErr: true,
+			name: "invalid config",
+			in:   []byte("test: something: 1"),
+			want: glass.Config{
+				UI: glass.UIConfig{
+					Width:      640,
+					Height:     480,
+					Fullscreen: true,
+				},
+			},
+			wantErr: require.Error,
 		},
 		{
 			name: "invalid config template",
@@ -266,7 +273,14 @@ modules:
     path: {{ .Secrets.test
     position: top:right
 `),
-			wantErr: true,
+			want: glass.Config{
+				UI: glass.UIConfig{
+					Width:      640,
+					Height:     480,
+					Fullscreen: true,
+				},
+			},
+			wantErr: require.Error,
 		},
 	}
 
@@ -274,13 +288,8 @@ modules:
 		t.Run(test.name, func(t *testing.T) {
 			got, err := glass.ParseConfig(test.in, "/some/path", test.secrets)
 
-			if test.wantErr {
-				assert.Error(t, err)
-				return
-			}
-			if assert.NoError(t, err) {
-				assert.Equal(t, test.want, got)
-			}
+			test.wantErr(t, err)
+			assert.Equal(t, test.want, got)
 		})
 	}
 }

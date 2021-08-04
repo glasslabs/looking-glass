@@ -21,15 +21,6 @@ tidy:
 	@echo "==> Done"
 .PHONY: tidy
 
-# Install required tools to build looking-glass
-tools:
-	@mkdir -p .gotools
-	@set -e; \
-	cd .gotools && if ! test -f go.mod; then \
-		go mod init tools ; \
-	fi
-	@cd .gotools && go get -v $(GO_TOOLS)
-
 # Build the commands
 build:
 	@find ./cmd/* -maxdepth 1 -type d -exec go build {} \;

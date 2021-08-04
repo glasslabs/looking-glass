@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"errors"
 	"io"
-
 	"net/http"
 	"os"
 	"testing"
@@ -117,14 +116,13 @@ func TestProxyClient_Download(t *testing.T) {
 
 	got, err := c.Download(mod.Version{Path: "test", Version: "main"})
 
-	if assert.NoError(t, err) {
-		if !assert.Implements(t, (*io.ReadCloser)(nil), got) {
-			return
-		}
-		data, _ := io.ReadAll(got)
-		assert.Equal(t, "1234", string(data))
-		srv.AssertExpectations()
+	require.NoError(t, err)
+	if !assert.Implements(t, (*io.ReadCloser)(nil), got) {
+		return
 	}
+	data, _ := io.ReadAll(got)
+	assert.Equal(t, "1234", string(data))
+	srv.AssertExpectations()
 }
 
 func TestProxyClient_DownloadHandlesError(t *testing.T) {
@@ -154,9 +152,8 @@ func TestNewCachedClient(t *testing.T) {
 
 	got, err := module.NewCachedClient(c, dir)
 
-	if assert.NoError(t, err) {
-		assert.Implements(t, (*module.Client)(nil), got)
-	}
+	require.NoError(t, err)
+	assert.Implements(t, (*module.Client)(nil), got)
 }
 
 func TestNewCachedClient_HandlesBadPath(t *testing.T) {
@@ -182,11 +179,10 @@ func TestCachedClient_Version(t *testing.T) {
 
 	got, err := cache.Version("test", "main")
 
-	if assert.NoError(t, err) {
-		assert.Equal(t, "test", got.Path)
-		assert.Equal(t, "v0.1.0", got.Version)
-		c.AssertExpectations(t)
-	}
+	require.NoError(t, err)
+	assert.Equal(t, "test", got.Path)
+	assert.Equal(t, "v0.1.0", got.Version)
+	c.AssertExpectations(t)
 }
 
 func TestCachedClient_VersionHandlesError(t *testing.T) {
@@ -223,25 +219,25 @@ func TestCachedClient_Download(t *testing.T) {
 
 	got, err := cache.Download(mod.Version{Path: "test", Version: "main"})
 
-	if assert.NoError(t, err) {
-		if !assert.Implements(t, (*io.ReadCloser)(nil), got) {
-			return
-		}
-		data, _ := io.ReadAll(got)
-		got.Close()
-		assert.Equal(t, "1234", string(data))
+	require.NoError(t, err)
+
+	if !assert.Implements(t, (*io.ReadCloser)(nil), got) {
+		return
 	}
+	data, _ := io.ReadAll(got)
+	_ = got.Close()
+
+	assert.Equal(t, "1234", string(data))
 
 	// Get from the cache the second time
 	got, err = cache.Download(mod.Version{Path: "test", Version: "main"})
 
-	if assert.NoError(t, err) {
-		if !assert.Implements(t, (*io.ReadCloser)(nil), got) {
-			return
-		}
-		data, _ := io.ReadAll(got)
-		got.Close()
-		assert.Equal(t, "1234", string(data))
+	require.NoError(t, err)
+	if !assert.Implements(t, (*io.ReadCloser)(nil), got) {
+		return
 	}
+	data, _ = io.ReadAll(got)
+	got.Close()
+	assert.Equal(t, "1234", string(data))
 	c.AssertExpectations(t)
 }

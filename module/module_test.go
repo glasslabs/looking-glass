@@ -64,10 +64,10 @@ func TestPosition_UnmarshalYAML(t *testing.T) {
 				assert.EqualError(t, err, test.wantErr)
 				return
 			}
-			if assert.NoError(t, err) {
-				assert.Equal(t, test.want.Vertical, got.Vertical)
-				assert.Equal(t, test.want.Horizontal, got.Horizontal)
-			}
+
+			require.NoError(t, err)
+			assert.Equal(t, test.want.Vertical, got.Vertical)
+			assert.Equal(t, test.want.Horizontal, got.Horizontal)
 		})
 	}
 }
@@ -169,7 +169,7 @@ func TestService_Extract(t *testing.T) {
 	})
 
 	if assert.NoError(t, err) {
-		b, _ := os.ReadFile(filepath.Join(dir, "src/test-module/main.go"))
+		b, _ = os.ReadFile(filepath.Join(dir, "src/test-module/main.go"))
 		assert.Equal(t, "test-module\n", string(b))
 		b, _ = os.ReadFile(filepath.Join(dir, "src/test-module/.looking-glass"))
 		assert.Equal(t, "v0.1.0", string(b))
@@ -181,12 +181,11 @@ func TestService_Extract(t *testing.T) {
 		Version: "latest",
 	})
 
-	if assert.NoError(t, err) {
-		b, _ := os.ReadFile(filepath.Join(dir, "src/test-module/main.go"))
-		assert.Equal(t, "test-module\n", string(b))
-		b, _ = os.ReadFile(filepath.Join(dir, "src/test-module/.looking-glass"))
-		assert.Equal(t, "v0.2.0", string(b))
-	}
+	require.NoError(t, err)
+	b, _ = os.ReadFile(filepath.Join(dir, "src/test-module/main.go"))
+	assert.Equal(t, "test-module\n", string(b))
+	b, _ = os.ReadFile(filepath.Join(dir, "src/test-module/.looking-glass"))
+	assert.Equal(t, "v0.2.0", string(b))
 }
 
 func TestService_ExtractLeavesUserModule(t *testing.T) {
@@ -213,13 +212,12 @@ func TestService_ExtractLeavesUserModule(t *testing.T) {
 		Version: "main",
 	})
 
-	if assert.NoError(t, err) {
-		b, _ := os.ReadFile(filepath.Join(dir, "src/test-module/main.go"))
-		assert.Equal(t, "something", string(b))
-		_, err := os.Stat(filepath.Join(dir, "src/test-module/.looking-glass"))
-		assert.Error(t, err)
-		c.AssertExpectations(t)
-	}
+	require.NoError(t, err)
+	b, _ := os.ReadFile(filepath.Join(dir, "src/test-module/main.go"))
+	assert.Equal(t, "something", string(b))
+	_, err = os.Stat(filepath.Join(dir, "src/test-module/.looking-glass"))
+	assert.Error(t, err)
+	c.AssertExpectations(t)
 }
 
 func TestService_Run(t *testing.T) {
@@ -227,57 +225,57 @@ func TestService_Run(t *testing.T) {
 		name    string
 		path    string
 		pkg     string
-		wantErr bool
+		wantErr require.ErrorAssertionFunc
 	}{
 		{
 			name:    "valid module",
 			path:    "valid",
-			wantErr: false,
+			wantErr: require.NoError,
 		},
 		{
 			name:    "can determine package name",
 			path:    "package-name",
-			wantErr: false,
+			wantErr: require.NoError,
 		},
 		{
 			name:    "can receive package name",
 			path:    "given-package-name",
 			pkg:     "something",
-			wantErr: false,
+			wantErr: require.NoError,
 		},
 		{
 			name:    "handles invalid path",
 			path:    "this-path-should-not-exist",
-			wantErr: true,
+			wantErr: require.Error,
 		},
 		{
 			name:    "handles no NewConfig",
 			path:    "no-config",
-			wantErr: true,
+			wantErr: require.Error,
 		},
 		{
 			name:    "handles no New",
 			path:    "no-new",
 			pkg:     "new_func",
-			wantErr: true,
+			wantErr: require.Error,
 		},
 		{
 			name:    "handles bad return",
 			path:    "bad-return",
 			pkg:     "bad_return",
-			wantErr: true,
+			wantErr: require.Error,
 		},
 		{
 			name:    "handles module error",
 			path:    "mod-error",
 			pkg:     "mod_error",
-			wantErr: true,
+			wantErr: require.Error,
 		},
 		{
 			name:    "handles nil module",
 			path:    "mod-nil",
 			pkg:     "mod_nil",
-			wantErr: true,
+			wantErr: require.Error,
 		},
 	}
 
@@ -298,12 +296,8 @@ func TestService_Run(t *testing.T) {
 
 			mod, err := svc.Run(context.Background(), desc, ui, log)
 
-			if test.wantErr {
-				assert.Error(t, err)
-				return
-			}
-			if assert.NoError(t, err) {
-				assert.NotNil(t, mod)
+			test.wantErr(t, err)
+			if mod != nil {
 				assert.Implements(t, (*io.Closer)(nil), mod)
 			}
 		})

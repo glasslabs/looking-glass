@@ -43,10 +43,9 @@ func TestNewUI(t *testing.T) {
 
 	got, err := NewUI(cfg)
 
-	if assert.NoError(t, err) {
-		assert.IsType(t, (*UI)(nil), got)
-		ui.AssertExpectations(t)
-	}
+	require.NoError(t, err)
+	assert.IsType(t, (*UI)(nil), got)
+	ui.AssertExpectations(t)
 }
 
 func TestNewUI_HandlesWindowError(t *testing.T) {
@@ -110,10 +109,9 @@ func TestNewUIContext(t *testing.T) {
 
 	got, err := NewUIContext(ui, "test", pos)
 
-	if assert.NoError(t, err) {
-		assert.IsType(t, &UIContext{}, got)
-		win.AssertExpectations(t)
-	}
+	require.NoError(t, err)
+	assert.IsType(t, &UIContext{}, got)
+	win.AssertExpectations(t)
 }
 
 func TestNewUIContext_HandlesModuleError(t *testing.T) {
@@ -129,10 +127,9 @@ func TestNewUIContext_HandlesModuleError(t *testing.T) {
 
 	_, err := NewUIContext(ui, "test", pos)
 
-	if assert.Error(t, err) {
-		assert.EqualError(t, err, "test: could not create module ui element: test err")
-		win.AssertExpectations(t)
-	}
+	require.Error(t, err)
+	assert.EqualError(t, err, "test: could not create module ui element: test err")
+	win.AssertExpectations(t)
 }
 
 func TestUIContext_LoadCSS(t *testing.T) {
@@ -151,9 +148,8 @@ func TestUIContext_LoadCSS(t *testing.T) {
 
 	err = uiCtx.LoadCSS("test css")
 
-	if assert.NoError(t, err) {
-		win.AssertExpectations(t)
-	}
+	require.NoError(t, err)
+	win.AssertExpectations(t)
 }
 
 func TestUIContext_LoadHTML(t *testing.T) {
@@ -172,9 +168,8 @@ func TestUIContext_LoadHTML(t *testing.T) {
 
 	err = uiCtx.LoadHTML("test html")
 
-	if assert.NoError(t, err) {
-		win.AssertExpectations(t)
-	}
+	require.NoError(t, err)
+	win.AssertExpectations(t)
 }
 
 func TestUIContext_Bind(t *testing.T) {
@@ -193,9 +188,8 @@ func TestUIContext_Bind(t *testing.T) {
 
 	err = uiCtx.Bind("testfunc", func(a, b string) string { return "test" })
 
-	if assert.NoError(t, err) {
-		win.AssertExpectations(t)
-	}
+	require.NoError(t, err)
+	win.AssertExpectations(t)
 }
 
 func TestUIContext_Eval(t *testing.T) {
@@ -215,10 +209,9 @@ func TestUIContext_Eval(t *testing.T) {
 
 	got, err := uiCtx.Eval("some js %s", "test")
 
-	if assert.NoError(t, err) {
-		assert.Equal(t, map[string]interface{}{"test": "return"}, got)
-		win.AssertExpectations(t)
-	}
+	require.NoError(t, err)
+	assert.Equal(t, map[string]interface{}{"test": "return"}, got)
+	win.AssertExpectations(t)
 }
 
 func TestUIContext_EvalHandlesEmptyValue(t *testing.T) {
@@ -237,10 +230,9 @@ func TestUIContext_EvalHandlesEmptyValue(t *testing.T) {
 
 	got, err := uiCtx.Eval("some js %s", "test")
 
-	if assert.NoError(t, err) {
-		assert.Nil(t, got)
-		win.AssertExpectations(t)
-	}
+	require.NoError(t, err)
+	assert.Nil(t, got)
+	win.AssertExpectations(t)
 }
 
 func TestUIContext_EvalHandlesError(t *testing.T) {
@@ -260,10 +252,9 @@ func TestUIContext_EvalHandlesError(t *testing.T) {
 
 	got, err := uiCtx.Eval("some js %s", "test")
 
-	if assert.Error(t, err) {
-		assert.Nil(t, got)
-		win.AssertExpectations(t)
-	}
+	require.Error(t, err)
+	assert.Nil(t, got)
+	win.AssertExpectations(t)
 }
 
 type MockLorcaUI struct {
