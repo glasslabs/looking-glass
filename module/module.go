@@ -16,6 +16,8 @@ import (
 
 	stypes "github.com/glasslabs/looking-glass/module/internal/types"
 	"github.com/glasslabs/looking-glass/module/types"
+	"github.com/hamba/logger/v2"
+	"github.com/hamba/logger/v2/ctx"
 	"github.com/traefik/yaegi/interp"
 	"github.com/traefik/yaegi/stdlib"
 	"github.com/traefik/yaegi/stdlib/unsafe"
@@ -114,7 +116,7 @@ type Service struct {
 	path string
 	c    Client
 
-	Debug func(msg string, ctx ...interface{})
+	Debug func(msg string, ctx ...logger.Field)
 }
 
 // NewService returns a module service.
@@ -130,7 +132,7 @@ func NewService(modPath string, c Client) (Service, error) {
 	}, nil
 }
 
-func (s Service) debug(msg string, ctx ...interface{}) {
+func (s Service) debug(msg string, ctx ...logger.Field) {
 	if s.Debug == nil {
 		return
 	}
@@ -140,6 +142,8 @@ func (s Service) debug(msg string, ctx ...interface{}) {
 // Extract downloads and extracts a module into the module path.
 func (s Service) Extract(desc Descriptor) error {
 	if desc.Version == "" {
+		s.debug("module has no version, ignoring", ctx.Str("path", desc.Path))
+
 		// User is not expecting us to extract. Nothing to do.
 		return nil
 	}
@@ -147,31 +151,31 @@ func (s Service) Extract(desc Descriptor) error {
 	if err != nil {
 		return err
 	}
-	s.debug("module version resolved", "module", m.Path, "ver", m.Version)
+	s.debug("module version resolved", ctx.Str("module", m.Path), ctx.Str("ver", m.Version))
 
 	modPath := filepath.Join(s.path, srcPath, desc.Path)
 	markerPath := filepath.Join(modPath, markerFile)
 	if _, err = os.Stat(modPath); err == nil {
 		// This might be a user controlled path, check for the marker.
 		if _, err = os.Stat(markerPath); err != nil {
-			s.debug("path seems to be a user module path", "path", modPath)
+			s.debug("path seems to be a user module path", ctx.Str("path", modPath))
 			// Not our path or something we cannot touch.
 			return nil
 		}
 		if ver, err := os.ReadFile(markerPath); err == nil && m.Version == string(ver) {
-			s.debug("module is at correct version", "path", modPath)
+			s.debug("module is at correct version", ctx.Str("path", modPath))
 			// The correct version is already extracted. Nothing to do.
 			return nil
 		}
 
 		// The path exists but is the wrong version, remove it.
-		s.debug("cleaning module path", "path", modPath)
+		s.debug("cleaning module path", ctx.Str("path", modPath))
 		if err = os.RemoveAll(modPath); err != nil {
 			return fmt.Errorf("could not remove old module: %w", err)
 		}
 	}
 
-	s.debug("extracting module", "path", m.Path, "ver", m.Version)
+	s.debug("extracting module", ctx.Str("path", m.Path), ctx.Str("ver", m.Version))
 	z, err := s.c.Download(m)
 	if err != nil {
 		return err
@@ -277,7 +281,7 @@ func (s Service) Run(ctx context.Context, desc Descriptor, ui types.UI, log type
 	if err != nil {
 		return nil, fmt.Errorf("module: could not run NewConfig: %w", err)
 	}
-	if err := desc.Config.Decode(vCfg.Interface()); err != nil {
+	if err = desc.Config.Decode(vCfg.Interface()); err != nil {
 		return nil, fmt.Errorf("%s: could not decode configuration: %w", desc.Name, err)
 	}
 
