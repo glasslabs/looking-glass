@@ -22,4 +22,4 @@ modules:
       maxDays: 30
       calendars:
         - url: https://www.calendarlabs.com/ical-calendar/ics/68/South_Africa_Holidays.ics
-        - url: https://calendar.google.com/calendar/ical/c_qpqjholuuctsur6u5v1027jsic%40group.calendar.google.com/private-3b61ee948b88b675353138b13e01249c/basic.ics
+        - url: {{ .Secrets.caelndar.myCalendar }}

@@ -1,37 +1,31 @@
 package main
 
 import (
-	"context"
 	"fmt"
 	"os"
-	"os/signal"
 	"path/filepath"
-	"syscall"
 
 	glass "github.com/glasslabs/looking-glass"
+	"github.com/glasslabs/looking-glass/internal/logadpt"
 	"github.com/glasslabs/looking-glass/module"
+	"github.com/hamba/cmd/v2"
 	"github.com/urfave/cli/v2"
 )
 
 const proxyURL = "https://proxy.golang.org"
 
 func run(c *cli.Context) error {
-	ctx := context.Background()
-	log, err := NewLogger(c)
+	log, err := cmd.NewLogger(c)
 	if err != nil {
 		return err
 	}
 
-	secretFile := c.String(flagSecretsFile)
-	cfgPath := c.String(flagConfigFile)
-	modPath := c.String(flagModPath)
-
-	secrets, err := loadSecrets(secretFile)
+	secrets, err := loadSecrets(c.String(flagSecretsFile))
 	if err != nil {
 		return err
 	}
 
-	cfg, err := loadConfig(cfgPath, secrets)
+	cfg, err := loadConfig(c.String(flagConfigFile), secrets)
 	if err != nil {
 		return err
 	}
@@ -44,6 +38,7 @@ func run(c *cli.Context) error {
 		_ = ui.Close()
 	}()
 
+	modPath := c.String(flagModPath)
 	cachePath, err := ensureCachePath(modPath)
 	if err != nil {
 		return err
@@ -58,7 +53,7 @@ func run(c *cli.Context) error {
 	}
 	svc.Debug = log.Debug
 	for _, desc := range cfg.Modules {
-		if err := svc.Extract(desc); err != nil {
+		if err = svc.Extract(desc); err != nil {
 			return err
 		}
 
@@ -66,7 +61,7 @@ func run(c *cli.Context) error {
 		if err != nil {
 			return err
 		}
-		mod, err := svc.Run(ctx, desc, uiCtx, log)
+		mod, err := svc.Run(c.Context, desc, uiCtx, logadpt.LogAdapter{Log: log})
 		if err != nil {
 			return err
 		}
@@ -75,11 +70,9 @@ func run(c *cli.Context) error {
 		}()
 	}
 
-	sigs := make(chan os.Signal, 1)
-	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
 	select {
 	case <-ui.Done():
-	case <-sigs:
+	case <-c.Context.Done():
 	}
 
 	return nil
@@ -110,7 +103,7 @@ func loadConfig(file string, secrets map[string]interface{}) (glass.Config, erro
 	if err != nil {
 		return glass.Config{}, fmt.Errorf("could not parse configuration file: %w", err)
 	}
-	if err := cfg.Validate(); err != nil {
+	if err = cfg.Validate(); err != nil {
 		return glass.Config{}, err
 	}
 	return cfg, nil
