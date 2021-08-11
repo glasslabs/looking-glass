@@ -16,10 +16,12 @@ modules:
       appId: {{ .Secrets.weather.appId }}
       units: metric
   - name: simple-calendar
-    path: calendar
+    path: github.com/glasslabs/calendar
+    version: latest
     position: top:right
     config:
-      maxDays: 30
+      timezone: Africa/Johannesburg
+      maxDays: 5
       calendars:
         - url: https://www.calendarlabs.com/ical-calendar/ics/68/South_Africa_Holidays.ics
         - url: {{ .Secrets.caelndar.myCalendar }}
