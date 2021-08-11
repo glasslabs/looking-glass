@@ -26,9 +26,8 @@ import (
 )
 
 const (
-	srcPath     = "src"
-	markerFile  = ".looking-glass"
-	modulesPath = "vendor/modules.txt"
+	srcPath    = "src"
+	markerFile = ".looking-glass"
 )
 
 // Module positions.
