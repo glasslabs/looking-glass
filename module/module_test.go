@@ -188,6 +188,41 @@ func TestService_Extract(t *testing.T) {
 	assert.Equal(t, "v0.2.0", string(b))
 }
 
+func TestService_ExtractWithVendor(t *testing.T) {
+	dir, err := os.MkdirTemp("./", "extract-test")
+	require.NoError(t, err)
+	t.Cleanup(func() {
+		_ = os.RemoveAll(dir)
+	})
+
+	b, err := os.ReadFile("../testdata/outer-module@v0.1.0.zip")
+	require.NoError(t, err)
+	r1 := io.NopCloser(bytes.NewReader(b))
+	b, err = os.ReadFile("../testdata/module@v0.2.0.zip")
+	require.NoError(t, err)
+	r2 := io.NopCloser(bytes.NewReader(b))
+	c := &MockClient{}
+	c.On("Version", "outer-module", "v0.1.0").Twice().Return(mod.Version{Path: "outer-module", Version: "v0.1.0"}, nil)
+	c.On("Version", "test-module", "v0.2.0").Once().Return(mod.Version{Path: "test-module", Version: "v0.2.0"}, nil)
+	c.On("Download", mod.Version{Path: "outer-module", Version: "v0.1.0"}).Once().Return(r1, nil)
+	c.On("Download", mod.Version{Path: "test-module", Version: "v0.2.0"}).Once().Return(r2, nil)
+
+	svc, err := module.NewService(dir, c)
+	require.NoError(t, err)
+
+	err = svc.Extract(module.Descriptor{
+		Name:    "test",
+		Path:    "outer-module",
+		Version: "v0.1.0",
+	})
+	require.NoError(t, err)
+
+	b, _ = os.ReadFile(filepath.Join(dir, "src/test-module/main.go"))
+	assert.Equal(t, "test-module\n", string(b))
+	b, _ = os.ReadFile(filepath.Join(dir, "src/test-module/.looking-glass"))
+	assert.Equal(t, "v0.2.0", string(b))
+}
+
 func TestService_ExtractLeavesUserModule(t *testing.T) {
 	dir, err := os.MkdirTemp("./", "extract-test")
 	require.NoError(t, err)

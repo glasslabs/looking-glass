@@ -63,7 +63,7 @@ The application will need to be able to create files and folders in this path.
 
 **--log.format** FORMAT, **$LOG_FORMAT** *(Default: "logfmt")*
 
-Specify the format of logs. Supported formats: 'logfmt', 'json'.
+Specify the format of logs. Supported formats: 'logfmt', 'json', 'console'.
 
 **--log.level** LEVEL, **$LOG_LEVEL** *(Default: "info")*
 
@@ -199,9 +199,9 @@ func New(ctx context.Context, cfg *Config, info types.Info, ui types.UI) (io.Clo
 
 #### Dependencies
 
-All dependencies must vendored except for `github.com/glasslabs/looking-glass/module/types`. 
+All dependencies must be vendored except for `github.com/glasslabs/looking-glass/module/types`. 
 If you still wish to use Go Modules for dependency management, you should run `go mod vendor` to 
-vendor your dependencies and commit your `vendor` folder to git.
+vendor your dependencies and commit your `vendor/modules.txt` to git.
 
 More information about vendoring can be found in the [Go Module Reference](https://golang.org/ref/mod#vendoring).
 
@@ -210,4 +210,4 @@ More information about vendoring can be found in the [Go Module Reference](https
 This is very much a work in progress and under active development. The immediate list of
 things to do is below:
 
-* Installation script and assets for Raspberry Pi
+* Localisation

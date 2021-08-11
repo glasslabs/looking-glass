@@ -14,6 +14,7 @@ import (
 	"regexp"
 	"strings"
 
+	"github.com/glasslabs/looking-glass/internal/modules"
 	stypes "github.com/glasslabs/looking-glass/module/internal/types"
 	"github.com/glasslabs/looking-glass/module/types"
 	"github.com/hamba/logger/v2"
@@ -21,7 +22,6 @@ import (
 	"github.com/traefik/yaegi/interp"
 	"github.com/traefik/yaegi/stdlib"
 	"github.com/traefik/yaegi/stdlib/unsafe"
-	"golang.org/x/mod/module"
 	"gopkg.in/yaml.v3"
 )
 
@@ -141,62 +141,88 @@ func (s Service) debug(msg string, ctx ...logger.Field) {
 
 // Extract downloads and extracts a module into the module path.
 func (s Service) Extract(desc Descriptor) error {
-	if desc.Version == "" {
-		s.debug("module has no version, ignoring", ctx.Str("path", desc.Path))
-
-		// User is not expecting us to extract. Nothing to do.
-		return nil
-	}
-	m, err := s.c.Version(desc.Path, desc.Version)
+	path, err := s.extract(desc.Path, desc.Version)
 	if err != nil {
 		return err
 	}
+
+	deps, err := modules.Dependencies(path)
+	if err != nil {
+		return fmt.Errorf("could not read vendor modules: %w", err)
+	}
+
+	for _, dep := range deps {
+		// Exclude ourselves, we are already included.
+		if dep.Path == "github.com/glasslabs/looking-glass" {
+			continue
+		}
+
+		s.debug("extracting dependency", ctx.Str("module", dep.Path), ctx.Str("ver", dep.Version))
+
+		if _, err = s.extract(dep.Path, dep.Version); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (s Service) extract(path, ver string) (string, error) {
+	if ver == "" {
+		s.debug("module has no version, ignoring", ctx.Str("path", path))
+
+		// User is not expecting us to extract. Nothing to do.
+		return "", nil
+	}
+	m, err := s.c.Version(path, ver)
+	if err != nil {
+		return "", err
+	}
 	s.debug("module version resolved", ctx.Str("module", m.Path), ctx.Str("ver", m.Version))
 
-	modPath := filepath.Join(s.path, srcPath, desc.Path)
+	modPath := filepath.Join(s.path, srcPath, path)
 	markerPath := filepath.Join(modPath, markerFile)
 	if _, err = os.Stat(modPath); err == nil {
 		// This might be a user controlled path, check for the marker.
 		if _, err = os.Stat(markerPath); err != nil {
 			s.debug("path seems to be a user module path", ctx.Str("path", modPath))
 			// Not our path or something we cannot touch.
-			return nil
+			return "", nil
 		}
 		if ver, err := os.ReadFile(markerPath); err == nil && m.Version == string(ver) {
 			s.debug("module is at correct version", ctx.Str("path", modPath))
 			// The correct version is already extracted. Nothing to do.
-			return nil
+			return modPath, nil
 		}
 
 		// The path exists but is the wrong version, remove it.
 		s.debug("cleaning module path", ctx.Str("path", modPath))
 		if err = os.RemoveAll(modPath); err != nil {
-			return fmt.Errorf("could not remove old module: %w", err)
+			return "", fmt.Errorf("could not remove old module: %w", err)
 		}
 	}
 
-	s.debug("extracting module", ctx.Str("path", m.Path), ctx.Str("ver", m.Version))
+	s.debug("extracting module", ctx.Str("path", path), ctx.Str("ver", m.Version))
 	z, err := s.c.Download(m)
 	if err != nil {
-		return err
+		return "", err
 	}
 	defer func() {
 		_ = z.Close()
 	}()
 	if err = os.MkdirAll(modPath, 0750); err != nil {
-		return fmt.Errorf("could not create module path %q: %w", modPath, err)
+		return "", fmt.Errorf("could not create module path %q: %w", modPath, err)
 	}
-	if err = s.unzip(z, m, modPath); err != nil {
-		return fmt.Errorf("could not extract module: %w", err)
+	if err = s.unzip(z, path, m.Version, modPath); err != nil {
+		return "", fmt.Errorf("could not extract module: %w", err)
 	}
 	if err = os.WriteFile(markerPath, []byte(m.Version), 0440); err != nil {
-		return fmt.Errorf("could not write module marker: %w", err)
+		return "", fmt.Errorf("could not write module marker: %w", err)
 	}
 
-	return nil
+	return modPath, nil
 }
 
-func (s Service) unzip(r io.Reader, m module.Version, path string) error {
+func (s Service) unzip(r io.Reader, modPath, version, path string) error {
 	var buf bytes.Buffer
 	size, err := io.Copy(&buf, r)
 	if err != nil {
@@ -208,7 +234,7 @@ func (s Service) unzip(r io.Reader, m module.Version, path string) error {
 	if err != nil {
 		return err
 	}
-	prefix := fmt.Sprintf("%s@%s/", m.Path, m.Version)
+	prefix := fmt.Sprintf("%s@%s/", modPath, version)
 	for _, zf := range z.File {
 		if !strings.HasPrefix(zf.Name, prefix) {
 			return fmt.Errorf("unexpected file name %s", zf.Name)

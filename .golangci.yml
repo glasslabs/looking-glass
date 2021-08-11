@@ -39,3 +39,6 @@ issues:
     - path: module/client.go
       linters:
         - noctx
+    - path: internal/modules/vendor.go
+      linters:
+        - prealloc
