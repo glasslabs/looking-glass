@@ -211,3 +211,4 @@ This is very much a work in progress and under active development. The immediate
 things to do is below:
 
 * Localisation
+* Testing Framework for Modules
