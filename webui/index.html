@@ -172,6 +172,7 @@
         <script>
             function loadCSS(name, css) {
                 var style = document.createElement("style");
+                style.setAttribute("id", name);
                 style.innerText = css;
 
                 var head = document.querySelector("head");
