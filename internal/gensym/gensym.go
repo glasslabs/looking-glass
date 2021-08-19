@@ -25,7 +25,7 @@ func main() {
 		return
 	}
 
-	if err = os.WriteFile(*outputFile, buf.Bytes(), 0600); err != nil {
+	if err = os.WriteFile(*outputFile, buf.Bytes(), 0o600); err != nil {
 		log.Println(err)
 		return
 	}

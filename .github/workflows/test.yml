@@ -10,7 +10,7 @@ jobs:
 
     runs-on: ubuntu-latest
     env:
-      GOLANGCI_LINT_VERSION: v1.41.1
+      GOLANGCI_LINT_VERSION: v1.42.0
 
     steps:
       - name: Install Go

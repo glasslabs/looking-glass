@@ -209,13 +209,13 @@ func (s Service) extract(path, ver string) (string, error) {
 	defer func() {
 		_ = z.Close()
 	}()
-	if err = os.MkdirAll(modPath, 0750); err != nil {
+	if err = os.MkdirAll(modPath, 0o750); err != nil {
 		return "", fmt.Errorf("could not create module path %q: %w", modPath, err)
 	}
 	if err = s.unzip(z, path, m.Version, modPath); err != nil {
 		return "", fmt.Errorf("could not extract module: %w", err)
 	}
-	if err = os.WriteFile(markerPath, []byte(m.Version), 0440); err != nil {
+	if err = os.WriteFile(markerPath, []byte(m.Version), 0o440); err != nil {
 		return "", fmt.Errorf("could not write module marker: %w", err)
 	}
 
@@ -244,10 +244,10 @@ func (s Service) unzip(r io.Reader, modPath, version, path string) error {
 			continue
 		}
 		dst := filepath.Join(path, name)
-		if err = os.MkdirAll(filepath.Dir(dst), 0750); err != nil {
+		if err = os.MkdirAll(filepath.Dir(dst), 0o750); err != nil {
 			return err
 		}
-		w, err := os.OpenFile(filepath.Clean(dst), os.O_WRONLY|os.O_CREATE|os.O_EXCL, 0440)
+		w, err := os.OpenFile(filepath.Clean(dst), os.O_WRONLY|os.O_CREATE|os.O_EXCL, 0o440)
 		if err != nil {
 			return err
 		}
