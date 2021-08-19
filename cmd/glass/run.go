@@ -114,7 +114,7 @@ func ensureCachePath(modPath string) (string, error) {
 	if _, err := os.Stat(p); err == nil {
 		return p, nil
 	}
-	if err := os.MkdirAll(p, 0750); err != nil {
+	if err := os.MkdirAll(p, 0o750); err != nil {
 		return "", fmt.Errorf("could not create cache path %q: %w", p, err)
 	}
 	return p, nil

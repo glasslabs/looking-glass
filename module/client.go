@@ -137,10 +137,10 @@ func (c *CachedClient) Download(m module.Version) (io.ReadCloser, error) {
 		_ = rc.Close()
 	}()
 
-	if err = os.MkdirAll(filepath.Dir(p), 0750); err != nil {
+	if err = os.MkdirAll(filepath.Dir(p), 0o750); err != nil {
 		return nil, fmt.Errorf("could not create cache path %q", filepath.Dir(p))
 	}
-	f, err := os.OpenFile(filepath.Clean(p), os.O_CREATE|os.O_TRUNC|os.O_RDWR|os.O_EXCL, 0444)
+	f, err := os.OpenFile(filepath.Clean(p), os.O_CREATE|os.O_TRUNC|os.O_RDWR|os.O_EXCL, 0o444)
 	if err != nil {
 		return nil, fmt.Errorf("could not write to cache file %q: %w", p, err)
 	}
