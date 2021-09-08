@@ -44,6 +44,8 @@ github.com/go-logfmt/logfmt v0.4.0/go.mod h1:3RMwSq7FuexP4Kalkev3ejPJsZTpXXBr9+V
 github.com/go-logfmt/logfmt v0.5.0/go.mod h1:wCYkCAKZfumFQihp8CzCvQ3paCTfi41vtzG1KdI/P7A=
 github.com/go-stack/stack v1.8.0 h1:5SgMzNM5HxrEjV0ww2lTmX6E2Izsfxas4+YHWRs3Lsk=
 github.com/go-stack/stack v1.8.0/go.mod h1:v0f6uXyyMGvRgIKkXu+yp6POWl0qKG85gN/melR3HDY=
+github.com/go-stack/stack v1.8.1 h1:ntEHSVwIt7PNXNpgPmVfMrNhLtgjlmnZha2kOpuRiDw=
+github.com/go-stack/stack v1.8.1/go.mod h1:dcoOX6HbPZSZptuspn9bctJ+N/CnF5gGygcUP3XYfe4=
 github.com/gogo/protobuf v1.1.1/go.mod h1:r8qH/GZQm5c6nD/R0oafs1akxWv10x8SbQlK7atdtwQ=
 github.com/golang/glog v0.0.0-20160126235308-23def4e6c14b/go.mod h1:SBH7ygxi8pfUlaOkMMuAQtPIUF8ecWP5IEl/CR7VP2Q=
 github.com/golang/mock v1.1.1/go.mod h1:oTYuIxOrZwtPieC+H1uAHpcLFnEyAGVDL/k47Jfbm0A=
@@ -75,8 +77,12 @@ github.com/gorilla/context v1.1.1/go.mod h1:kBGZzfjB9CEq2AlWe17Uuf7NDRt0dE0s8S51
 github.com/gorilla/mux v1.6.2/go.mod h1:1lud6UwP+6orDFRuTfBEV8e9/aOM/c4fVVCaMa2zaAs=
 github.com/hamba/cmd/v2 v2.0.1 h1:sKt3/JBXFmg9NZUmajRrDBbsb0Lr6Y5Ip1AtgwB9ZSY=
 github.com/hamba/cmd/v2 v2.0.1/go.mod h1:lEImXWfK8R6Le5ik3IyUIh7LSTSNW9CEBTbyEtCtjfw=
+github.com/hamba/cmd/v2 v2.1.0 h1:3BsDQP/+G/Tqdxa0ZFwGBTq4OAkW4Fr8K7+aGgpXI8o=
+github.com/hamba/cmd/v2 v2.1.0/go.mod h1:KMd/tx6apP6qdZDSQIXvyyHFjLcTN7uj2k2F9gBaYMQ=
 github.com/hamba/logger/v2 v2.2.0 h1:wOumGmu9r//r4uQ0OPBdAE+eyTXkIMJKdrDpFxjQhGY=
 github.com/hamba/logger/v2 v2.2.0/go.mod h1:YkvVk8aIwAltFF2MLQ5POPW8QAxyn3M5ljEj0Q349jw=
+github.com/hamba/logger/v2 v2.3.0 h1:W20zm1RtimPI6LCKUcbmKDsTats1j14E/lI6XHYurRQ=
+github.com/hamba/logger/v2 v2.3.0/go.mod h1:z66imz0yn2+Kfv4bDfgBijxJH/sMUEVwNg/KwvOJbyQ=
 github.com/hamba/statter/v2 v2.0.4 h1:GrXu0yyyu2t5ifM+kVmmAChHfL1FER82wNM5pFN5pgo=
 github.com/hamba/statter/v2 v2.0.4/go.mod h1:dyMu2zX4kOtNJAqx5tJP/n0i7wgIk0a3WVJ/x7woL10=
 github.com/hamba/testutils v0.1.1 h1:Cb4WQ8rmPrK52R2/iFYU/7FS+XNcXpC+baoRtTEJ5V0=
