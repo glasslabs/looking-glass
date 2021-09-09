@@ -19,6 +19,8 @@ func run(c *cli.Context) error {
 	if err != nil {
 		return err
 	}
+	cancel := log.WithTimestamp()
+	defer cancel()
 
 	secrets, err := loadSecrets(c.String(flagSecretsFile))
 	if err != nil {
