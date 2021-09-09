@@ -4,7 +4,7 @@ go 1.17
 
 require (
 	github.com/agiledragon/gomonkey/v2 v2.2.0
-	github.com/hamba/cmd/v2 v2.1.0
+	github.com/hamba/cmd/v2 v2.1.2
 	github.com/hamba/logger/v2 v2.3.0
 	github.com/hamba/testutils v0.1.1
 	github.com/joho/godotenv v1.3.0
@@ -26,7 +26,7 @@ require (
 	github.com/fatih/color v1.12.0 // indirect
 	github.com/go-stack/stack v1.8.1 // indirect
 	github.com/golang/protobuf v1.4.3 // indirect
-	github.com/hamba/statter/v2 v2.0.4 // indirect
+	github.com/hamba/statter/v2 v2.1.0 // indirect
 	github.com/mattn/go-colorable v0.1.8 // indirect
 	github.com/mattn/go-isatty v0.0.12 // indirect
 	github.com/matttproud/golang_protobuf_extensions v1.0.1 // indirect
