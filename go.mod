@@ -7,7 +7,7 @@ require (
 	github.com/hamba/cmd/v2 v2.1.2
 	github.com/hamba/logger/v2 v2.3.0
 	github.com/hamba/testutils v0.1.1
-	github.com/joho/godotenv v1.3.0
+	github.com/joho/godotenv v1.4.0
 	github.com/stretchr/testify v1.7.0
 	github.com/traefik/yaegi v0.10.0
 	github.com/urfave/cli/v2 v2.3.0
