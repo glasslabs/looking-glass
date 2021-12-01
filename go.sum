@@ -165,8 +165,8 @@ github.com/stretchr/testify v1.3.0/go.mod h1:M5WIy9Dh21IEIfnGCwXGc5bZfKNJtfHm1UV
 github.com/stretchr/testify v1.4.0/go.mod h1:j7eGeouHqKxXV5pUuKE4zz7dFj8WfuZ+81PSLYec5m4=
 github.com/stretchr/testify v1.7.0 h1:nwc3DEeHmmLAfoZucVR881uASk0Mfjw8xYJ99tb5CcY=
 github.com/stretchr/testify v1.7.0/go.mod h1:6Fq8oRcR53rry900zMqJjRRixrwX3KX962/h/Wwjteg=
-github.com/traefik/yaegi v0.11.0 h1:aHHIZDrla3W7PYYsmw5ktf6/D+iP1N/hUQvNN46lmGM=
-github.com/traefik/yaegi v0.11.0/go.mod h1:RuCwD8/wsX7b6KoQHOaIFUfuH3gQIK4KWnFFmJMw5VA=
+github.com/traefik/yaegi v0.11.1 h1:MJpYUnRc/wNOQcdywGd/q2mCznZAiAch1V+Ae+XFVzc=
+github.com/traefik/yaegi v0.11.1/go.mod h1:RuCwD8/wsX7b6KoQHOaIFUfuH3gQIK4KWnFFmJMw5VA=
 github.com/urfave/cli/v2 v2.3.0 h1:qph92Y649prgesehzOrQjdWyxFOp/QVM+6imKHad91M=
 github.com/urfave/cli/v2 v2.3.0/go.mod h1:LJmUH05zAU44vOAcrfzZQKsZbVcdbOG8rtL3/XcUArI=
 github.com/valyala/fastrand v1.0.0 h1:LUKT9aKer2dVQNUi3waewTbKV+7H17kvWFNKs2ObdkI=
