@@ -26,8 +26,10 @@ linters:
     - gochecknoinits
     - goerr113
     - gomnd
+    - ireturn
     - nlreturn
     - nilerr
+    - varnamelen
     - wrapcheck
     - wsl
 

@@ -82,10 +82,10 @@ func run(c *cli.Context) error {
 
 func loadSecrets(file string) (map[string]interface{}, error) {
 	if file == "" {
-		return nil, nil
+		return nil, nil // nolint:nilnil
 	}
 
-	in, err := os.ReadFile(file)
+	in, err := os.ReadFile(filepath.Clean(file))
 	if err != nil {
 		return nil, fmt.Errorf("could not read secrets file: %w", err)
 	}
@@ -97,7 +97,7 @@ func loadSecrets(file string) (map[string]interface{}, error) {
 }
 
 func loadConfig(file string, secrets map[string]interface{}) (glass.Config, error) {
-	in, err := os.ReadFile(file)
+	in, err := os.ReadFile(filepath.Clean(file))
 	if err != nil {
 		return glass.Config{}, fmt.Errorf("could not read configuration file: %w", err)
 	}

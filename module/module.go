@@ -188,7 +188,7 @@ func (s Service) extract(path, ver string) (string, error) {
 			// Not our path or something we cannot touch.
 			return "", nil
 		}
-		if ver, err := os.ReadFile(markerPath); err == nil && m.Version == string(ver) {
+		if ver, err := os.ReadFile(filepath.Clean(markerPath)); err == nil && m.Version == string(ver) {
 			s.debug("module is at correct version", ctx.Str("path", modPath))
 			// The correct version is already extracted. Nothing to do.
 			return modPath, nil
