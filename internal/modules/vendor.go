@@ -15,7 +15,7 @@ func Dependencies(path string) ([]module.Version, error) {
 		return nil, nil
 	}
 
-	vendor, err := os.ReadFile(path)
+	vendor, err := os.ReadFile(filepath.Clean(path))
 	if err != nil {
 		return nil, err
 	}

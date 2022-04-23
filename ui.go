@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
 
@@ -60,7 +61,7 @@ func NewUI(cfg UIConfig) (*UI, error) {
 		return nil, fmt.Errorf("could not load fonts: %w", err)
 	}
 	for i, cssPath := range cfg.CustomCSS {
-		b, err := os.ReadFile(cssPath)
+		b, err := os.ReadFile(filepath.Clean(cssPath))
 		if err != nil {
 			return nil, fmt.Errorf("could not read custom css %q: %w", cssPath, err)
 		}
@@ -89,7 +90,7 @@ func (ui *UI) Eval(js string) (interface{}, error) {
 	}
 
 	if len(v.Bytes()) == 0 {
-		return nil, nil
+		return nil, nil // nolint:nilnil
 	}
 
 	var i interface{}
