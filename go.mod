@@ -10,7 +10,7 @@ require (
 	github.com/joho/godotenv v1.4.0
 	github.com/stretchr/testify v1.7.1
 	github.com/traefik/yaegi v0.11.3
-	github.com/urfave/cli/v2 v2.4.4
+	github.com/urfave/cli/v2 v2.4.8
 	github.com/vincent-petithory/dataurl v1.0.0
 	github.com/zserge/lorca v0.1.10
 	golang.org/x/mod v0.5.1
