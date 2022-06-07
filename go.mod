@@ -8,13 +8,13 @@ require (
 	github.com/hamba/logger/v2 v2.3.0
 	github.com/hamba/testutils v0.1.1
 	github.com/joho/godotenv v1.4.0
-	github.com/stretchr/testify v1.7.1
+	github.com/stretchr/testify v1.7.2
 	github.com/traefik/yaegi v0.11.2
 	github.com/urfave/cli/v2 v2.8.1
 	github.com/vincent-petithory/dataurl v1.0.0
 	github.com/zserge/lorca v0.1.10
 	golang.org/x/mod v0.5.1
-	gopkg.in/yaml.v3 v3.0.0-20220512140231-539c8e751b99
+	gopkg.in/yaml.v3 v3.0.1
 )
 
 replace github.com/zserge/lorca v0.1.10 => github.com/nrwiersma/lorca v0.1.10-0.20220516072108-aa84c692f732
