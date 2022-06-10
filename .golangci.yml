@@ -20,6 +20,7 @@ linters:
     - golint # deprecated
     - exhaustive
     - exhaustivestruct
+    - exhaustruct
     - forcetypeassert
     - funlen
     - gochecknoglobals
