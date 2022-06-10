@@ -171,27 +171,48 @@
         </style>
         <script>
             function loadCSS(name, css) {
-                var style = document.createElement("style");
+                let style = document.createElement("style");
                 style.setAttribute("id", name);
                 style.innerText = css;
 
-                var head = document.querySelector("head");
+                let head = document.querySelector("head");
                 head.appendChild(style);
             }
 
             function createModule(name, vert, horiz) {
-                var mod = document.createElement("div");
+                let mod = document.createElement("div");
                 mod.setAttribute("id", name);
                 mod.setAttribute("class", "module");
 
-                var cont = document.querySelector('.region.' + vert + '.' + horiz + ' .container');
+                let cont = document.querySelector('.region.' + vert + '.' + horiz + ' .container');
                 cont.appendChild(mod);
             }
 
             function loadModuleHTML(name, html) {
-                var mod = document.querySelector('#'+name+'.module');
+                let mod = document.querySelector('#' + name + '.module');
                 if (mod) {
                     mod.innerHTML = html;
+                }
+            }
+
+            function invokeModuleScripts(name) {
+                let mod = document.querySelector('#' + name + '.module');
+                let scripts = mod.querySelectorAll('script');
+                for (let i = 0; i < scripts.length; i++) {
+                    console.log("script " + i)
+                    let script = scripts[i];
+                    let parent = script.parentNode
+
+                    let newScript = document.createElement('script');
+                    if( script.hasAttribute('src') ) {
+                        console.log(script.src)
+                        newScript.src = script.src;
+                    }
+                    newScript.innerHTML = script.innerHTML;
+                    newScript.async = false;
+
+                    parent.appendChild(newScript);
+                    parent.removeChild(script);
                 }
             }
         </script>
