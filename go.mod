@@ -8,7 +8,7 @@ require (
 	github.com/hamba/logger/v2 v2.3.0
 	github.com/hamba/testutils v0.1.1
 	github.com/joho/godotenv v1.4.0
-	github.com/stretchr/testify v1.7.2
+	github.com/stretchr/testify v1.7.4
 	github.com/traefik/yaegi v0.12.0
 	github.com/urfave/cli/v2 v2.10.2
 	github.com/vincent-petithory/dataurl v1.0.0
@@ -43,7 +43,7 @@ require (
 	github.com/prometheus/procfs v0.7.3 // indirect
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect
 	github.com/ryanuber/go-glob v1.0.0 // indirect
-	github.com/stretchr/objx v0.1.1 // indirect
+	github.com/stretchr/objx v0.4.0 // indirect
 	github.com/valyala/fastrand v1.1.0 // indirect
 	github.com/valyala/histogram v1.2.0 // indirect
 	github.com/xrash/smetrics v0.0.0-20201216005158-039620a65673 // indirect
