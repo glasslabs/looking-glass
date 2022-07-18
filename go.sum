@@ -175,8 +175,8 @@ github.com/hamba/logger/v2 v2.4.0 h1:FvyTY3+TaBRXyjbZVWjfp11aEFtmDuj61amtq3uewns
 github.com/hamba/logger/v2 v2.4.0/go.mod h1:GDGHloIMf5JUwYjBPjgLmodnP21IJn5TrGhwRK52EfE=
 github.com/hamba/statter/v2 v2.3.0 h1:1QrkjJvXvTmBqUoLmM31l7slo0n6DQV5SF3H6YV3Njg=
 github.com/hamba/statter/v2 v2.3.0/go.mod h1:1RYEW6BOKviiMxyRH35W24Jf/k5U/UAQX3Xxe2yRrOI=
-github.com/hamba/testutils v0.1.1 h1:Cb4WQ8rmPrK52R2/iFYU/7FS+XNcXpC+baoRtTEJ5V0=
-github.com/hamba/testutils v0.1.1/go.mod h1:HWPZ5kgg7Nx93Ywdqt06L6UExmcfIvQceH3fN+bYL5s=
+github.com/hamba/testutils v0.2.1 h1:iiszcB7eCzXnyfGV/PdV4Cv2Os+3GetfUYHwJ7qgWkg=
+github.com/hamba/testutils v0.2.1/go.mod h1:E0IV4VujogYyU6xcB5FgN7HvP7ilqziZ5Uy1CyfUdls=
 github.com/hashicorp/go-uuid v1.0.2/go.mod h1:6SBZvOh/SIDV7/2o3Jml5SYk/TvGqwFJ/bN7x4byOro=
 github.com/hashicorp/golang-lru v0.5.0/go.mod h1:/m3WP610KZHVQ1SGc6re/UDhFvYD7pJ4Ao+sR/qLZy8=
 github.com/hashicorp/golang-lru v0.5.1/go.mod h1:/m3WP610KZHVQ1SGc6re/UDhFvYD7pJ4Ao+sR/qLZy8=
