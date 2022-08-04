@@ -1,6 +1,6 @@
 module github.com/glasslabs/looking-glass
 
-go 1.18
+go 1.19
 
 require (
 	github.com/agiledragon/gomonkey/v2 v2.8.0
