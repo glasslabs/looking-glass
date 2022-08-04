@@ -31,6 +31,7 @@ linters:
     - ireturn
     - nlreturn
     - nilerr
+    - nosnakecase
     - varnamelen
     - wrapcheck
     - wsl

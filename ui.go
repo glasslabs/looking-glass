@@ -90,7 +90,7 @@ func (ui *UI) Eval(js string) (interface{}, error) {
 	}
 
 	if len(v.Bytes()) == 0 {
-		return nil, nil // nolint:nilnil
+		return nil, nil //nolint:nilnil
 	}
 
 	var i interface{}

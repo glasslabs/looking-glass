@@ -82,7 +82,7 @@ func run(c *cli.Context) error {
 
 func loadSecrets(file string) (map[string]interface{}, error) {
 	if file == "" {
-		return nil, nil // nolint:nilnil
+		return nil, nil //nolint:nilnil
 	}
 
 	in, err := os.ReadFile(filepath.Clean(file))
