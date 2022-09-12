@@ -3,7 +3,7 @@ module github.com/glasslabs/looking-glass
 go 1.19
 
 require (
-	github.com/agiledragon/gomonkey/v2 v2.8.0
+	github.com/agiledragon/gomonkey/v2 v2.9.0
 	github.com/hamba/cmd/v2 v2.5.0
 	github.com/hamba/logger/v2 v2.4.0
 	github.com/hamba/testutils v0.2.1
