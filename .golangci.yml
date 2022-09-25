@@ -18,6 +18,11 @@ linters:
     - scopelint # deprecated
     - maligned # deprecated
     - golint # deprecated
+    - nosnakecase # deprecated
+    - deadcode # deprecated
+    - structcheck # deprecated
+    - ifshort # deprecated
+    - varcheck # deprecated
     - exhaustive
     - exhaustivestruct
     - exhaustruct
@@ -40,6 +45,7 @@ issues:
   exclude-use-default: false
   exclude:
     - 'ST1000: at least one file in a package should have a package comment'
+    - 'package-comments: should have a package comment'
   exclude-rules:
     - path: module/client.go
       linters:
