@@ -67,7 +67,7 @@ func (c *ProxyClient) Version(p, ver string) (module.Version, error) {
 	defer func() {
 		_ = resp.Body.Close()
 	}()
-	if resp.StatusCode != 200 {
+	if resp.StatusCode != http.StatusOK {
 		return m, fmt.Errorf("version %s does not exist for module %q", v, p)
 	}
 	if err = json.NewDecoder(resp.Body).Decode(&m); err != nil {
@@ -90,7 +90,7 @@ func (c *ProxyClient) Download(m module.Version) (io.ReadCloser, error) {
 	if err != nil {
 		return nil, fmt.Errorf("could not fetch module %q: %w", rawpath, err)
 	}
-	if resp.StatusCode != 200 {
+	if resp.StatusCode != http.StatusOK {
 		return nil, fmt.Errorf("version %s does not exist for module %q", m.Version, m.Path)
 	}
 	return resp.Body, nil
