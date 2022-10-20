@@ -13,7 +13,7 @@ require (
 	github.com/urfave/cli/v2 v2.19.2
 	github.com/vincent-petithory/dataurl v1.0.0
 	github.com/zserge/lorca v0.1.10
-	golang.org/x/mod v0.5.1
+	golang.org/x/mod v0.6.0
 	gopkg.in/yaml.v3 v3.0.1
 )
 
@@ -54,6 +54,5 @@ require (
 	go.opentelemetry.io/otel/trace v1.8.0 // indirect
 	golang.org/x/net v0.0.0-20220513224357-95641704303c // indirect
 	golang.org/x/sys v0.0.0-20220513210249-45d2b4557a2a // indirect
-	golang.org/x/xerrors v0.0.0-20220411194840-2f41105eb62f // indirect
 	google.golang.org/protobuf v1.28.0 // indirect
 )
