@@ -144,8 +144,8 @@ github.com/google/renameio v0.1.0/go.mod h1:KWCgfxg9yswjAJkECMjeO8J8rahYeXnNhOm4
 github.com/googleapis/gax-go/v2 v2.0.4/go.mod h1:0Wqv26UfaUD9n4G6kQubkQ+KchISgw+vpHVxEJEs9eg=
 github.com/googleapis/gax-go/v2 v2.0.5/go.mod h1:DWXyrwAJ9X0FpwwEdw+IPEYBICEFu5mhpdKc/us6bOk=
 github.com/gopherjs/gopherjs v0.0.0-20181017120253-0766667cb4d1/go.mod h1:wJfORRmW1u3UXTncJ5qlYoELFm8eSnnEO6hX4iZ3EWY=
-github.com/hamba/cmd/v2 v2.6.0 h1:tjNesHG8CyVr9x8v9DfXYg3gsKJXvyNk5HFhXAAzxWM=
-github.com/hamba/cmd/v2 v2.6.0/go.mod h1:CHS38CtniDiUmBprb6sOofJxBrNE5kpa5Y3Umx7foi8=
+github.com/hamba/cmd/v2 v2.7.1 h1:5ilmKsISbOE1YXnSHhtS3hmOFVjOv5pVeL/AKDMp3/U=
+github.com/hamba/cmd/v2 v2.7.1/go.mod h1:CHS38CtniDiUmBprb6sOofJxBrNE5kpa5Y3Umx7foi8=
 github.com/hamba/logger/v2 v2.4.0 h1:FvyTY3+TaBRXyjbZVWjfp11aEFtmDuj61amtq3uewns=
 github.com/hamba/logger/v2 v2.4.0/go.mod h1:GDGHloIMf5JUwYjBPjgLmodnP21IJn5TrGhwRK52EfE=
 github.com/hamba/statter/v2 v2.3.2 h1:VKUzx+eRS6bZOiCVUummILB6Zh+hBaUA8NTk2QXW0zI=
