@@ -52,7 +52,7 @@ require (
 	go.opentelemetry.io/otel/exporters/zipkin v1.12.0 // indirect
 	go.opentelemetry.io/otel/sdk v1.12.0 // indirect
 	go.opentelemetry.io/otel/trace v1.12.0 // indirect
-	golang.org/x/net v0.4.0 // indirect
-	golang.org/x/sys v0.4.0 // indirect
+	golang.org/x/net v0.7.0 // indirect
+	golang.org/x/sys v0.5.0 // indirect
 	google.golang.org/protobuf v1.28.1 // indirect
 )
