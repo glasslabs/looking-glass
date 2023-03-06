@@ -13,7 +13,7 @@ require (
 	github.com/urfave/cli/v2 v2.24.4
 	github.com/vincent-petithory/dataurl v1.0.0
 	github.com/zserge/lorca v0.1.10
-	golang.org/x/mod v0.8.0
+	golang.org/x/mod v0.9.0
 	gopkg.in/yaml.v3 v3.0.1
 )
 
