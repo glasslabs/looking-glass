@@ -1,26 +1,30 @@
 package main
 
 import (
+	"context"
 	"fmt"
+	"net/http"
 	"os"
 	"path/filepath"
 
 	glass "github.com/glasslabs/looking-glass"
-	"github.com/glasslabs/looking-glass/internal/logadpt"
 	"github.com/glasslabs/looking-glass/module"
 	"github.com/hamba/cmd/v2"
+	lctx "github.com/hamba/logger/v2/ctx"
+	httpx "github.com/hamba/pkg/v2/http"
 	"github.com/urfave/cli/v2"
 )
 
-const proxyURL = "https://proxy.golang.org"
-
 func run(c *cli.Context) error {
+	ctx, cancel := context.WithCancel(c.Context)
+	defer cancel()
+
 	log, err := cmd.NewLogger(c)
 	if err != nil {
 		return err
 	}
-	cancel := log.WithTimestamp()
-	defer cancel()
+	logCancel := log.WithTimestamp()
+	defer logCancel()
 
 	secrets, err := loadSecrets(c.String(flagSecretsFile))
 	if err != nil {
@@ -32,7 +36,24 @@ func run(c *cli.Context) error {
 		return err
 	}
 
-	ui, err := glass.NewUI(cfg.UI)
+	addr := c.String(flagAddr)
+	mux := http.NewServeMux()
+	mux.Handle("/assets/", http.StripPrefix("/assets/", http.FileServer(http.Dir(c.String(flagAssetsPath)))))
+	mux.Handle("/modules/", http.StripPrefix("/modules/", http.FileServer(http.Dir(c.String(flagModPath)))))
+
+	log.Info("Starting API server",
+		lctx.Str("ver", version),
+		lctx.Str("addr", addr),
+	)
+
+	srv := httpx.NewServer(ctx, addr, mux, httpx.WithH2C())
+	srv.Serve(func(err error) {
+		log.Error("Server error", lctx.Err(err))
+		cancel()
+	})
+	defer func() { _ = srv.Close() }()
+
+	ui, err := glass.NewUI(cfg.UI, log)
 	if err != nil {
 		return err
 	}
@@ -40,36 +61,26 @@ func run(c *cli.Context) error {
 		_ = ui.Close()
 	}()
 
-	modPath := c.String(flagModPath)
-	cachePath, err := ensureCachePath(modPath)
-	if err != nil {
-		return err
+	execCtx := module.ExecContext{
+		ModuleURL: "http://" + addr + "/modules",
+		AssetsURL: "http://" + addr + "/assets",
 	}
-	client, err := newModuleClient(proxyURL, cachePath)
-	if err != nil {
-		return err
-	}
-	svc, err := module.NewService(modPath, client)
-	if err != nil {
-		return err
-	}
-	svc.Debug = log.Debug
-	for _, desc := range cfg.Modules {
-		if err = svc.Extract(desc); err != nil {
-			return err
-		}
 
-		uiCtx, err := glass.NewUIContext(ui, desc.Name, desc.Position)
-		if err != nil {
-			return err
+	d, err := module.NewDownloader(c.String(flagModPath))
+	if err != nil {
+		return err
+	}
+	loader, err := module.New(ui, d, execCtx, log)
+	if err != nil {
+		return err
+	}
+
+	for _, desc := range cfg.Modules {
+		desc := desc
+
+		if err = loader.Load(ctx, desc); err != nil {
+			return fmt.Errorf("could not load module: %w", err)
 		}
-		mod, err := svc.Run(c.Context, desc, uiCtx, logadpt.LogAdapter{Log: log})
-		if err != nil {
-			return err
-		}
-		defer func() {
-			_ = mod.Close()
-		}()
 	}
 
 	select {
@@ -77,10 +88,12 @@ func run(c *cli.Context) error {
 	case <-c.Context.Done():
 	}
 
+	cancel()
+
 	return nil
 }
 
-func loadSecrets(file string) (map[string]interface{}, error) {
+func loadSecrets(file string) (map[string]any, error) {
 	if file == "" {
 		return nil, nil //nolint:nilnil
 	}
@@ -96,12 +109,12 @@ func loadSecrets(file string) (map[string]interface{}, error) {
 	return s, nil
 }
 
-func loadConfig(file string, secrets map[string]interface{}) (glass.Config, error) {
+func loadConfig(file string, secrets map[string]any) (glass.Config, error) {
 	in, err := os.ReadFile(filepath.Clean(file))
 	if err != nil {
 		return glass.Config{}, fmt.Errorf("could not read configuration file: %w", err)
 	}
-	cfg, err := glass.ParseConfig(in, filepath.Dir(file), secrets)
+	cfg, err := glass.ParseConfig(in, secrets)
 	if err != nil {
 		return glass.Config{}, fmt.Errorf("could not parse configuration file: %w", err)
 	}
@@ -109,23 +122,4 @@ func loadConfig(file string, secrets map[string]interface{}) (glass.Config, erro
 		return glass.Config{}, err
 	}
 	return cfg, nil
-}
-
-func ensureCachePath(modPath string) (string, error) {
-	p := filepath.Join(modPath, "cache")
-	if _, err := os.Stat(p); err == nil {
-		return p, nil
-	}
-	if err := os.MkdirAll(p, 0o750); err != nil {
-		return "", fmt.Errorf("could not create cache path %q: %w", p, err)
-	}
-	return p, nil
-}
-
-func newModuleClient(proxyURL, cachePath string) (module.Client, error) {
-	pc, err := module.NewProxyClient(proxyURL)
-	if err != nil {
-		return nil, err
-	}
-	return module.NewCachedClient(pc, cachePath)
 }

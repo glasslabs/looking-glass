@@ -23,8 +23,9 @@ linters:
     - structcheck # deprecated
     - ifshort # deprecated
     - varcheck # deprecated
+    - exhaustivestruct # deprecated
+    - depguard
     - exhaustive
-    - exhaustivestruct
     - exhaustruct
     - forcetypeassert
     - funlen

@@ -58,8 +58,7 @@ This file will be parsed using [Go template syntax](https://golang.org/pkg/text/
 
 **--modules** PATH, **-m** PATH, **$MODULES** *(Required)*
 
-The path to the modules. Module must be located under a `src` folder in the modules path.
-The application will need to be able to create files and folders in this path. 
+The path to the module cache. 
 
 **--log.format** FORMAT, **$LOG_FORMAT** *(Default: "logfmt")*
 

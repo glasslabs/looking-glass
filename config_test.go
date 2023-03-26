@@ -13,19 +13,19 @@ func TestParseSecrets(t *testing.T) {
 	tests := []struct {
 		name    string
 		in      []byte
-		want    map[string]interface{}
+		want    map[string]any
 		wantErr require.ErrorAssertionFunc
 	}{
 		{
 			name:    "valid config",
 			in:      []byte("test:\n  something: 1"),
-			want:    map[string]interface{}{"test": map[string]interface{}{"something": 1}},
+			want:    map[string]any{"test": map[string]any{"something": 1}},
 			wantErr: require.NoError,
 		},
 		{
 			name:    "invalid config",
 			in:      []byte("test: something: 1"),
-			want:    map[string]interface{}{},
+			want:    map[string]any{},
 			wantErr: require.Error,
 		},
 	}
@@ -56,7 +56,7 @@ func TestConfig_Validate(t *testing.T) {
 				Modules: []module.Descriptor{
 					{
 						Name: "test-module",
-						Path: "test",
+						URI:  "test",
 					},
 				},
 			},
@@ -72,7 +72,7 @@ func TestConfig_Validate(t *testing.T) {
 				Modules: []module.Descriptor{
 					{
 						Name: "test-module",
-						Path: "test",
+						URI:  "test",
 					},
 				},
 			},
@@ -88,7 +88,7 @@ func TestConfig_Validate(t *testing.T) {
 				Modules: []module.Descriptor{
 					{
 						Name: "test-module",
-						Path: "test",
+						URI:  "test",
 					},
 				},
 			},
@@ -114,7 +114,7 @@ func TestConfig_Validate(t *testing.T) {
 				Modules: []module.Descriptor{
 					{
 						Name: "",
-						Path: "test",
+						URI:  "test",
 					},
 				},
 			},
@@ -130,37 +130,15 @@ func TestConfig_Validate(t *testing.T) {
 				Modules: []module.Descriptor{
 					{
 						Name: "test-module",
-						Path: "test",
+						URI:  "test",
 					},
 					{
 						Name: "test-module",
-						Path: "test1",
+						URI:  "test1",
 					},
 				},
 			},
 			wantErr: "config: module name \"test-module\" is a duplicate. module names must be unique",
-		},
-		{
-			name: "handles mismatched module versions",
-			config: glass.Config{
-				UI: glass.UIConfig{
-					Width:  1,
-					Height: 1,
-				},
-				Modules: []module.Descriptor{
-					{
-						Name:    "test-module1",
-						Path:    "test",
-						Version: "1",
-					},
-					{
-						Name:    "test-module2",
-						Path:    "test",
-						Version: "2",
-					},
-				},
-			},
-			wantErr: "config: module \"test\" has mismatched versions (2 != 1)",
 		},
 	}
 
@@ -183,43 +161,10 @@ func TestParseConfig(t *testing.T) {
 	tests := []struct {
 		name    string
 		in      []byte
-		secrets map[string]interface{}
+		secrets map[string]any
 		want    glass.Config
 		wantErr require.ErrorAssertionFunc
 	}{
-		{
-			name: "valid config",
-			in: []byte(`
-ui:
-  width: 1024
-  height: 768
-  fullscreen: false
-  customCss:
-    - {{ .ConfigPath }}/assets/css/main.css
-modules:
-  - name: test-mod
-    path: some/path
-    position: top:right
-`),
-			want: glass.Config{
-				UI: glass.UIConfig{
-					Width:      1024,
-					Height:     768,
-					Fullscreen: false,
-					CustomCSS: []string{
-						"/some/path/assets/css/main.css",
-					},
-				},
-				Modules: []module.Descriptor{
-					{
-						Name:     "test-mod",
-						Path:     "some/path",
-						Position: module.Position{Vertical: module.Top, Horizontal: module.Right},
-					},
-				},
-			},
-			wantErr: require.NoError,
-		},
 		{
 			name: "valid config with secrets",
 			in: []byte(`
@@ -229,10 +174,10 @@ ui:
   fullscreen: false
 modules:
   - name: test-mod
-    path: {{ .Secrets.test }}
+    uri: {{ .Secrets.test }}
     position: top:right
 `),
-			secrets: map[string]interface{}{"test": "some/path"},
+			secrets: map[string]any{"test": "some/path"},
 			want: glass.Config{
 				UI: glass.UIConfig{
 					Width:      1024,
@@ -242,7 +187,7 @@ modules:
 				Modules: []module.Descriptor{
 					{
 						Name:     "test-mod",
-						Path:     "some/path",
+						URI:      "some/path",
 						Position: module.Position{Vertical: module.Top, Horizontal: module.Right},
 					},
 				},
@@ -270,7 +215,7 @@ ui:
   fullscreen: false
 modules:
   - name: test-mod
-    path: {{ .Secrets.test
+    uri: {{ .Secrets.test
     position: top:right
 `),
 			want: glass.Config{
@@ -286,7 +231,7 @@ modules:
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			got, err := glass.ParseConfig(test.in, "/some/path", test.secrets)
+			got, err := glass.ParseConfig(test.in, test.secrets)
 
 			test.wantErr(t, err)
 			assert.Equal(t, test.want, got)

@@ -1,15 +1,15 @@
 package glass
 
 import (
+	"bytes"
 	_ "embed"
 	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
 	"strconv"
-	"strings"
 
-	"github.com/glasslabs/looking-glass/module"
+	"github.com/hamba/logger/v2"
 	"github.com/vincent-petithory/dataurl"
 	"github.com/zserge/lorca"
 )
@@ -18,9 +18,15 @@ var (
 	//go:embed webui/index.html
 	page []byte
 
+	//go:embed webui/wasm_exec.js
+	wasmExec []byte
+
 	//go:embed webui/fonts.css
 	fonts []byte
 )
+
+// newFunc is used for testing.
+var newFunc = lorca.New
 
 // UIConfig contains configuration for the UI.
 type UIConfig struct {
@@ -45,13 +51,19 @@ type UI struct {
 }
 
 // NewUI returns a new UI.
-func NewUI(cfg UIConfig) (*UI, error) {
-	var args []string
+func NewUI(cfg UIConfig, log *logger.Logger) (*UI, error) {
+	// Add wasmExec to html page.
+	page = bytes.Replace(page, []byte("{{ .WASMExec }}"), wasmExec, 1)
+
+	args := []string{
+		"--disable-web-security",
+		"--test-type",
+	}
 	if cfg.Fullscreen {
 		args = append(args, "--start-fullscreen")
 	}
 	url := dataurl.New(page, "text/html")
-	win, err := lorca.New(url.String(), "", cfg.Width, cfg.Height, args...)
+	win, err := newFunc(url.String(), "", cfg.Width, cfg.Height, args...)
 	if err != nil {
 		return nil, fmt.Errorf("could not create window: %w", err)
 	}
@@ -72,18 +84,19 @@ func NewUI(cfg UIConfig) (*UI, error) {
 		}
 	}
 
-	return &UI{
+	ui := &UI{
 		win: win,
-	}, nil
-}
+	}
 
-// Bind binds a function into javascript.
-func (ui *UI) Bind(name string, fun interface{}) error {
-	return ui.win.Bind(name, fun)
+	if err = ui.bindFuncs(log); err != nil {
+		return nil, err
+	}
+
+	return ui, nil
 }
 
 // Eval evaluates a javascript expression.
-func (ui *UI) Eval(js string) (interface{}, error) {
+func (ui *UI) Eval(js string) (any, error) {
 	v := ui.win.Eval(js)
 	if v.Err() != nil {
 		return nil, v.Err()
@@ -93,7 +106,7 @@ func (ui *UI) Eval(js string) (interface{}, error) {
 		return nil, nil //nolint:nilnil
 	}
 
-	var i interface{}
+	var i any
 	err := v.To(&i)
 	return i, err
 }
@@ -106,45 +119,4 @@ func (ui *UI) Done() <-chan struct{} {
 // Close closes the ui.
 func (ui *UI) Close() error {
 	return ui.win.Close()
-}
-
-// UIContext implements a UI in context of a module element.
-type UIContext struct {
-	ui   *UI
-	name string
-}
-
-// NewUIContext returns a ui with the context of a module.
-func NewUIContext(ui *UI, name string, pos module.Position) (*UIContext, error) {
-	name = strings.ReplaceAll(name, " ", "_")
-	if _, err := ui.Eval(fmt.Sprintf(`createModule("%s", "%s", "%s");`, name, pos.Vertical, pos.Horizontal)); err != nil {
-		return nil, fmt.Errorf("%s: could not create module ui element: %w", name, err)
-	}
-
-	return &UIContext{
-		ui:   ui,
-		name: name,
-	}, nil
-}
-
-// LoadCSS loads a css style into the ui.
-func (u *UIContext) LoadCSS(css string) error {
-	_, err := u.ui.Eval(fmt.Sprintf("loadCSS(`%s`, `%s`);", u.name, css))
-	return err
-}
-
-// LoadHTML loads html into the module.
-func (u *UIContext) LoadHTML(html string) error {
-	_, err := u.ui.Eval(fmt.Sprintf("loadModuleHTML(`%s`, `%s`);", u.name, html))
-	return err
-}
-
-// Bind binds a function into javascript.
-func (u *UIContext) Bind(name string, fun interface{}) error {
-	return u.ui.Bind(name, fun)
-}
-
-// Eval evaluates a javascript expression.
-func (u *UIContext) Eval(js string, ctx ...interface{}) (interface{}, error) {
-	return u.ui.Eval(fmt.Sprintf(js, ctx...))
 }

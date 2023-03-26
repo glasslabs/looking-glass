@@ -14,7 +14,7 @@ jobs:
         if: success()
         uses: actions/setup-go@v4
         with:
-          go-version: "1.20"
+          go-version: "1.21"
 
       - name: Checkout code
         uses: actions/checkout@v4
@@ -27,13 +27,10 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-go-
 
-      - name: Generate Static Assets
-        run: make static-assets
-
       - name: Run GoReleaser
         uses: goreleaser/goreleaser-action@v5
         with:
           version: latest
-          args: release --rm-dist
+          args: release --clean
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
