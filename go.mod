@@ -9,7 +9,7 @@ require (
 	github.com/hamba/testutils v0.2.1
 	github.com/joho/godotenv v1.5.1
 	github.com/stretchr/testify v1.8.2
-	github.com/traefik/yaegi v0.15.0
+	github.com/traefik/yaegi v0.15.1
 	github.com/urfave/cli/v2 v2.25.1
 	github.com/vincent-petithory/dataurl v1.0.0
 	github.com/zserge/lorca v0.1.10
