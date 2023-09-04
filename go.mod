@@ -5,10 +5,10 @@ go 1.20
 require (
 	github.com/agiledragon/gomonkey/v2 v2.9.0
 	github.com/hamba/cmd/v2 v2.7.2
-	github.com/hamba/logger/v2 v2.4.0
+	github.com/hamba/logger/v2 v2.5.0
 	github.com/hamba/testutils v0.2.1
 	github.com/joho/godotenv v1.5.1
-	github.com/stretchr/testify v1.8.3
+	github.com/stretchr/testify v1.8.4
 	github.com/traefik/yaegi v0.15.0
 	github.com/urfave/cli/v2 v2.25.1
 	github.com/vincent-petithory/dataurl v1.0.0
@@ -47,11 +47,12 @@ require (
 	github.com/valyala/fastrand v1.1.0 // indirect
 	github.com/valyala/histogram v1.2.0 // indirect
 	github.com/xrash/smetrics v0.0.0-20201216005158-039620a65673 // indirect
-	go.opentelemetry.io/otel v1.14.0 // indirect
+	go.opentelemetry.io/otel v1.17.0 // indirect
 	go.opentelemetry.io/otel/exporters/jaeger v1.14.0 // indirect
 	go.opentelemetry.io/otel/exporters/zipkin v1.14.0 // indirect
+	go.opentelemetry.io/otel/metric v1.17.0 // indirect
 	go.opentelemetry.io/otel/sdk v1.14.0 // indirect
-	go.opentelemetry.io/otel/trace v1.14.0 // indirect
+	go.opentelemetry.io/otel/trace v1.17.0 // indirect
 	golang.org/x/net v0.7.0 // indirect
 	golang.org/x/sys v0.7.0 // indirect
 	google.golang.org/protobuf v1.30.0 // indirect
