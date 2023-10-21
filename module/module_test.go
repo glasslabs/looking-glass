@@ -3,15 +3,13 @@ package module_test
 import (
 	"bytes"
 	"context"
-	"io"
-	"os"
-	"path/filepath"
 	"testing"
 
 	"github.com/glasslabs/looking-glass/module"
+	"github.com/hamba/logger/v2"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
-	mod "golang.org/x/mod/module"
 	"gopkg.in/yaml.v3"
 )
 
@@ -82,7 +80,7 @@ func TestDescriptor_Validate(t *testing.T) {
 			name: "valid descriptor",
 			desc: module.Descriptor{
 				Name: "test-module",
-				Path: "test",
+				URI:  "test",
 			},
 			wantErr: "",
 		},
@@ -90,7 +88,7 @@ func TestDescriptor_Validate(t *testing.T) {
 			name: "handles no name",
 			desc: module.Descriptor{
 				Name: "",
-				Path: "test",
+				URI:  "test",
 			},
 			wantErr: "config: a module must have a name",
 		},
@@ -98,7 +96,7 @@ func TestDescriptor_Validate(t *testing.T) {
 			name: "handles invalid name",
 			desc: module.Descriptor{
 				Name: "test@modile",
-				Path: "test",
+				URI:  "test",
 			},
 			wantErr: "test@modile: module names may only contain letters, numbers, '-' and '_'",
 		},
@@ -106,9 +104,9 @@ func TestDescriptor_Validate(t *testing.T) {
 			name: "handles no path",
 			desc: module.Descriptor{
 				Name: "test-module",
-				Path: "",
+				URI:  "",
 			},
-			wantErr: "test-module: module must have a path",
+			wantErr: "test-module: module must have a URI",
 		},
 	}
 
@@ -127,214 +125,46 @@ func TestDescriptor_Validate(t *testing.T) {
 	}
 }
 
-func TestService_Extract(t *testing.T) {
-	dir, err := os.MkdirTemp("./", "extract-test")
-	require.NoError(t, err)
-	t.Cleanup(func() {
-		_ = os.RemoveAll(dir)
-	})
+func TestModule_Load(t *testing.T) {
+	var buf bytes.Buffer
+	log := logger.New(&buf, logger.LogfmtFormat(), logger.Info)
 
-	b, err := os.ReadFile("../testdata/module@v0.1.0.zip")
-	require.NoError(t, err)
-	r1 := io.NopCloser(bytes.NewReader(b))
-	b, err = os.ReadFile("../testdata/module@v0.2.0.zip")
-	require.NoError(t, err)
-	r2 := io.NopCloser(bytes.NewReader(b))
-	c := &MockClient{}
-	c.On("Version", "test-module", "main").Twice().Return(mod.Version{Path: "test-module", Version: "v0.1.0"}, nil)
-	c.On("Version", "test-module", "latest").Once().Return(mod.Version{Path: "test-module", Version: "v0.2.0"}, nil)
-	c.On("Download", mod.Version{Path: "test-module", Version: "v0.1.0"}).Once().Return(r1, nil)
-	c.On("Download", mod.Version{Path: "test-module", Version: "v0.2.0"}).Once().Return(r2, nil)
+	ui := &mockUI{}
+	ui.On("Eval", `createModule("test", "top", "right");`).
+		Once().
+		Return(nil, nil)
+	ui.On("Eval", mock.AnythingOfType("string")).
+		Once().
+		Return(nil, nil)
 
-	svc, err := module.NewService(dir, c)
+	d, err := module.NewDownloader("./testdata")
 	require.NoError(t, err)
 
-	err = svc.Extract(module.Descriptor{
-		Name:    "test",
-		Path:    "test-module",
-		Version: "main",
-	})
+	mod, err := module.New(ui, d, module.ExecContext{}, log)
+	require.NoError(t, err)
 
-	if assert.NoError(t, err) {
-		b, _ := os.ReadFile(filepath.Join(dir, "src/test-module/main.go"))
-		assert.Equal(t, "test-module\n", string(b))
-		b, _ = os.ReadFile(filepath.Join(dir, "src/test-module/.looking-glass"))
-		assert.Equal(t, "v0.1.0", string(b))
+	desc := module.Descriptor{
+		Name: "test",
+		URI:  "test.wasm",
+		Position: module.Position{
+			Vertical:   module.Top,
+			Horizontal: module.Right,
+		},
+		Config: map[string]any{
+			"a": "b",
+		},
 	}
-
-	err = svc.Extract(module.Descriptor{
-		Name:    "test",
-		Path:    "test-module",
-		Version: "main",
-	})
-
-	if assert.NoError(t, err) {
-		b, _ = os.ReadFile(filepath.Join(dir, "src/test-module/main.go"))
-		assert.Equal(t, "test-module\n", string(b))
-		b, _ = os.ReadFile(filepath.Join(dir, "src/test-module/.looking-glass"))
-		assert.Equal(t, "v0.1.0", string(b))
-	}
-
-	err = svc.Extract(module.Descriptor{
-		Name:    "test",
-		Path:    "test-module",
-		Version: "latest",
-	})
+	err = mod.Load(context.Background(), desc)
 
 	require.NoError(t, err)
-	b, _ = os.ReadFile(filepath.Join(dir, "src/test-module/main.go"))
-	assert.Equal(t, "test-module\n", string(b))
-	b, _ = os.ReadFile(filepath.Join(dir, "src/test-module/.looking-glass"))
-	assert.Equal(t, "v0.2.0", string(b))
+	ui.AssertExpectations(t)
 }
 
-func TestService_ExtractWithVendor(t *testing.T) {
-	dir, err := os.MkdirTemp("./", "extract-test")
-	require.NoError(t, err)
-	t.Cleanup(func() {
-		_ = os.RemoveAll(dir)
-	})
-
-	b, err := os.ReadFile("../testdata/outer-module@v0.1.0.zip")
-	require.NoError(t, err)
-	r1 := io.NopCloser(bytes.NewReader(b))
-	b, err = os.ReadFile("../testdata/module@v0.2.0.zip")
-	require.NoError(t, err)
-	r2 := io.NopCloser(bytes.NewReader(b))
-	c := &MockClient{}
-	c.On("Version", "outer-module", "v0.1.0").Twice().Return(mod.Version{Path: "outer-module", Version: "v0.1.0"}, nil)
-	c.On("Version", "test-module", "v0.2.0").Once().Return(mod.Version{Path: "test-module", Version: "v0.2.0"}, nil)
-	c.On("Download", mod.Version{Path: "outer-module", Version: "v0.1.0"}).Once().Return(r1, nil)
-	c.On("Download", mod.Version{Path: "test-module", Version: "v0.2.0"}).Once().Return(r2, nil)
-
-	svc, err := module.NewService(dir, c)
-	require.NoError(t, err)
-
-	err = svc.Extract(module.Descriptor{
-		Name:    "test",
-		Path:    "outer-module",
-		Version: "v0.1.0",
-	})
-	require.NoError(t, err)
-
-	b, _ = os.ReadFile(filepath.Join(dir, "src/test-module/main.go"))
-	assert.Equal(t, "test-module\n", string(b))
-	b, _ = os.ReadFile(filepath.Join(dir, "src/test-module/.looking-glass"))
-	assert.Equal(t, "v0.2.0", string(b))
+type mockUI struct {
+	mock.Mock
 }
 
-func TestService_ExtractLeavesUserModule(t *testing.T) {
-	dir, err := os.MkdirTemp("./", "extract-test")
-	require.NoError(t, err)
-	t.Cleanup(func() {
-		_ = os.RemoveAll(dir)
-	})
-
-	err = os.MkdirAll(filepath.Join(dir, "src/test-module"), 0777)
-	require.NoError(t, err)
-	err = os.WriteFile(filepath.Join(dir, "src/test-module/main.go"), []byte("something"), 0544)
-	require.NoError(t, err)
-
-	c := &MockClient{}
-	c.On("Version", "test-module", "main").Return(mod.Version{Path: "test-module", Version: "v0.1.0"}, nil)
-
-	svc, err := module.NewService(dir, c)
-	require.NoError(t, err)
-
-	err = svc.Extract(module.Descriptor{
-		Name:    "test",
-		Path:    "test-module",
-		Version: "main",
-	})
-
-	require.NoError(t, err)
-	b, _ := os.ReadFile(filepath.Join(dir, "src/test-module/main.go"))
-	assert.Equal(t, "something", string(b))
-	_, err = os.Stat(filepath.Join(dir, "src/test-module/.looking-glass"))
-	assert.Error(t, err)
-	c.AssertExpectations(t)
-}
-
-func TestService_Run(t *testing.T) {
-	tests := []struct {
-		name    string
-		path    string
-		pkg     string
-		wantErr require.ErrorAssertionFunc
-	}{
-		{
-			name:    "valid module",
-			path:    "valid",
-			wantErr: require.NoError,
-		},
-		{
-			name:    "can determine package name",
-			path:    "package-name",
-			wantErr: require.NoError,
-		},
-		{
-			name:    "can receive package name",
-			path:    "given-package-name",
-			pkg:     "something",
-			wantErr: require.NoError,
-		},
-		{
-			name:    "handles invalid path",
-			path:    "this-path-should-not-exist",
-			wantErr: require.Error,
-		},
-		{
-			name:    "handles no NewConfig",
-			path:    "no-config",
-			wantErr: require.Error,
-		},
-		{
-			name:    "handles no New",
-			path:    "no-new",
-			pkg:     "new_func",
-			wantErr: require.Error,
-		},
-		{
-			name:    "handles bad return",
-			path:    "bad-return",
-			pkg:     "bad_return",
-			wantErr: require.Error,
-		},
-		{
-			name:    "handles module error",
-			path:    "mod-error",
-			pkg:     "mod_error",
-			wantErr: require.Error,
-		},
-		{
-			name:    "handles nil module",
-			path:    "mod-nil",
-			pkg:     "mod_nil",
-			wantErr: require.Error,
-		},
-	}
-
-	for _, test := range tests {
-		t.Run(test.name, func(t *testing.T) {
-			desc := module.Descriptor{
-				Name:    "test",
-				Path:    test.path,
-				Package: test.pkg,
-				Config:  yaml.Node{},
-			}
-			client := &MockClient{}
-			ui := &MockUI{}
-			log := &MockLogger{}
-
-			svc, err := module.NewService("../testdata/mod", client)
-			require.NoError(t, err)
-
-			mod, err := svc.Run(context.Background(), desc, ui, log)
-
-			test.wantErr(t, err)
-			if mod != nil {
-				assert.Implements(t, (*io.Closer)(nil), mod)
-			}
-		})
-	}
+func (m *mockUI) Eval(js string) (any, error) {
+	args := m.Called(js)
+	return args.Get(0), args.Error(1)
 }

@@ -170,6 +170,9 @@
             }
         </style>
         <script>
+            {{ .WASMExec }}
+        </script>
+        <script>
             function loadCSS(name, css) {
                 let style = document.createElement("style");
                 style.setAttribute("id", name);
@@ -188,32 +191,12 @@
                 cont.appendChild(mod);
             }
 
-            function loadModuleHTML(name, html) {
-                let mod = document.querySelector('#' + name + '.module');
-                if (mod) {
-                    mod.innerHTML = html;
-                }
-            }
+            function loadModule(js) {
+                let newScript = document.createElement('script');
+                newScript.innerHTML = js;
+                newScript.async = false;
 
-            function invokeModuleScripts(name) {
-                let mod = document.querySelector('#' + name + '.module');
-                let scripts = mod.querySelectorAll('script');
-                for (let i = 0; i < scripts.length; i++) {
-                    console.log("script " + i)
-                    let script = scripts[i];
-                    let parent = script.parentNode
-
-                    let newScript = document.createElement('script');
-                    if( script.hasAttribute('src') ) {
-                        console.log(script.src)
-                        newScript.src = script.src;
-                    }
-                    newScript.innerHTML = script.innerHTML;
-                    newScript.async = false;
-
-                    parent.appendChild(newScript);
-                    parent.removeChild(script);
-                }
+                document.querySelector('body').appendChild(newScript);
             }
         </script>
     </head>

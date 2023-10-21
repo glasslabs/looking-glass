@@ -1,10 +1,5 @@
-GO_TOOLS = \
-    github.com/go-bindata/go-bindata/go-bindata@v3.1.2
-
-GEN_GO_FILES?=$(shell find . -name '*.gen.go')
-
 # Run CI tasks
-ci: tools static-assets lint build test-coverage
+ci: wasmexec lint test build
 .PHONY: ci
 
 # Format all files
@@ -21,35 +16,30 @@ tidy:
 	@echo "==> Done"
 .PHONY: tidy
 
-# Build the commands
-build:
-	@find ./cmd/* -maxdepth 1 -type d -exec go build {} \;
-.PHONY: build
-
-# Run all tests
-test:
-	@go test -cover -race ./...
-.PHONY: test
-
-# Run all tests with a coverage output
-test-coverage:
-	@go test -covermode=count -coverprofile=profile.cov ./...
-.PHONY: test-coverage
-
 # Lint the project
 lint:
 	@echo "==> Linting Go files"
 	@golangci-lint run ./...
 .PHONY: lint
 
+# Run all tests
+test:
+	@go test -cover -race ./...
+.PHONY: test
+
+# Build the commands
+build:
+	@find ./cmd/* -maxdepth 1 -type d -exec go build {} \;
+.PHONY: build
+
 # Static Assets
 
-# Remove generated static assets
-static-assets-clean:
-	@echo "==> Removing $(GEN_GO_FILES)"
-	-@rm $(GEN_GO_FILES)
+wasmexec:
+	@cp $(shell go env GOROOT)/misc/wasm/wasm_exec.js ./webui
+.PHONY: wasmexec
 
-# Generate static assets
-static-assets:
-	@echo "==> Generating static assets"
-	@go run ./internal/gensym -o=./module/internal/types/types.gen.go
+wasmexec-check: wasmexec
+	@echo "==> Checking wasm_exec"
+	@git diff --exit-code --quiet ./
+.PHONY: wasmexec-check
+
