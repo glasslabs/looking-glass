@@ -2,17 +2,21 @@ package module_test
 
 import (
 	"context"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"os"
 	"testing"
 
 	"github.com/glasslabs/looking-glass/module"
+	"github.com/hamba/logger/v2"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
 func TestDownload_DownloadLocalFile(t *testing.T) {
+	log := logger.New(io.Discard, logger.LogfmtFormat(), logger.Error)
+
 	tests := []struct {
 		name    string
 		uri     string
@@ -43,7 +47,7 @@ func TestDownload_DownloadLocalFile(t *testing.T) {
 		t.Run(test.name, func(t *testing.T) {
 			t.Parallel()
 
-			r, err := module.NewDownloader("./testdata")
+			r, err := module.NewDownloader("./testdata", log)
 			require.NoError(t, err)
 
 			got, err := r.Download(context.Background(), test.uri)
@@ -55,6 +59,8 @@ func TestDownload_DownloadLocalFile(t *testing.T) {
 }
 
 func TestDownload_DownloadHTTPFile(t *testing.T) {
+	log := logger.New(io.Discard, logger.LogfmtFormat(), logger.Error)
+
 	tests := []struct {
 		name    string
 		path    string
@@ -93,7 +99,7 @@ func TestDownload_DownloadHTTPFile(t *testing.T) {
 
 			tmpDir := t.TempDir()
 
-			r, err := module.NewDownloader(tmpDir)
+			r, err := module.NewDownloader(tmpDir, log)
 			require.NoError(t, err)
 
 			url := srv.URL + test.path
@@ -106,6 +112,8 @@ func TestDownload_DownloadHTTPFile(t *testing.T) {
 }
 
 func TestDownload_DownloadHTTPCachedFile(t *testing.T) {
+	log := logger.New(io.Discard, logger.LogfmtFormat(), logger.Error)
+
 	var called int
 	srv := httptest.NewServer(http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
 		called++
@@ -118,7 +126,7 @@ func TestDownload_DownloadHTTPCachedFile(t *testing.T) {
 
 	tmpDir := t.TempDir()
 
-	r, err := module.NewDownloader(tmpDir)
+	r, err := module.NewDownloader(tmpDir, log)
 	require.NoError(t, err)
 
 	url := srv.URL + "/testdata/test.wasm"
@@ -129,12 +137,4 @@ func TestDownload_DownloadHTTPCachedFile(t *testing.T) {
 
 	require.NoError(t, err)
 	assert.Equal(t, 1, called)
-}
-
-func requireFile(t *testing.T, path string) []byte {
-	t.Helper()
-
-	b, err := os.ReadFile(path)
-	require.NoError(t, err)
-	return b
 }

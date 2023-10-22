@@ -137,7 +137,7 @@ func TestModule_Load(t *testing.T) {
 		Once().
 		Return(nil, nil)
 
-	d, err := module.NewDownloader("./testdata")
+	d, err := module.NewDownloader("./testdata", log)
 	require.NoError(t, err)
 
 	mod, err := module.New(ui, d, module.ExecContext{}, log)

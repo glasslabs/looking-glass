@@ -66,7 +66,7 @@ func run(c *cli.Context) error {
 		AssetsURL: "http://" + addr + "/assets",
 	}
 
-	d, err := module.NewDownloader(c.String(flagModPath))
+	d, err := module.NewDownloader(c.String(flagModPath), log)
 	if err != nil {
 		return err
 	}
