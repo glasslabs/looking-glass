@@ -6,7 +6,7 @@
 [![GitHub release](https://img.shields.io/github/release/glasslabs/looking-glass.svg)](https://github.com/glasslabs/looking-glass/releases)
 [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/glasslabs/looking-glass/main/LICENSE)
 
-Smart mirror platform written in Go leveraging Yaegi.
+Smart mirror platform written in Go leveraging WASM.
 
 ## Table of Contents
 * [Requirements](#requirements)
@@ -54,7 +54,11 @@ configuration using [Go template syntax](https://golang.org/pkg/text/template/) 
 **--config** FILE, **-c** FILE, **$CONFIG** *(Required)*
 
 The path to the YAML configuration file for `looking-glass` which includes module configuration. 
-This file will be parsed using [Go template syntax](https://golang.org/pkg/text/template/). 
+This file will be parsed using [Go template syntax](https://golang.org/pkg/text/template/).
+
+**--assets** PATH, **-a** PATH, **$ASSETS** *(Required)*
+
+The path to the assets.
 
 **--modules** PATH, **-m** PATH, **$MODULES** *(Required)*
 
@@ -79,11 +83,10 @@ ui:
     - path/to/custom.css
 modules:
   - name: simple-clock
-    path: github.com/glasslabs/clock
-    version: latest
+    url: https://github.com/glasslabs/clock/releases/download/v1.0.0/clock.wasm
     position: top:right
   - name: simple-weather
-    path: weather
+    uri: https://github.com/glasslabs/weather/releases/download/v1.0.0/weather.wasm
     position: top:left
     config:
       locationId: 996506
@@ -116,16 +119,9 @@ A list of custom css files to load. These can be used to customise the layout of
 
 The name of the module. This name must be unique. This is used as the ID of the module HTML wrapper.
 
-**modules.[].path**
+**modules.[].url**
 
-The module repository or path of the module under the modules path. If the version of module
-is set, looking glass will attempt download the module and manage its versions, otherwise it will
-assume the provided path exists.
-
-**modules.[].version**
-
-The version or branch of the module to download. This can also be `latest` in which case the latest version will be
-downloaded.
+The module URL or path of the module under the modules path.
 
 **modules.[].position**
 
@@ -151,58 +147,9 @@ The environment variables available when running looking-glass.
 
 You can discover modules on GitHub using [GitHub Search](https://github.com/search?q=topic%3Alooking-glass+topic%3Amodule+language%3AGo&ref=simplesearch).
 
-### Package Naming
-
-If your module uses a hyphen, which is not supported by Go, it will be assumed that the package name is the
-last path of the hyphenated name (e.g. `looking-glass` would result in a package name `glass`). If this is not
-the case for your module, the `Package` should be set in the module configuration to the correct package name and
-should be documented in your module.
-
 ### Development
 
 To make your module discoverable on GitHub, add the topics `looking-glass` and `module`.
-
-Modules are parsed in [yaegi](http://github.com/traefik/yaegi) and must expose two functions to be loaded:
-
-#### NewConfig
-
-`NewConfig` exposes your configuration structure to looking glass. The function must return
-a single structure with default values set. The YAML configuration will be decoded into
-the returned structure, so it should contain `yaml` tags for the configuration to be decoded
-properly.  
-
-```go
-func NewConfig() *Config 
-```
-
-An example configuration would look as follows:
-
-```go
-// Config is the module configuration.
-type Config struct {
-	TimeFormat string `yaml:"timeFormat"`
-	DateFormat string `yaml:"dateFormat"`
-	Timezone   string `yaml:"timezone"`
-}
-```
-
-#### New
-
-`New` creates an instance of your module. It must return an [`io.Closer`](https://golang.org/pkg/io/#Closer) and an [`error`](https://golang.org/pkg/builtin/#error).
-The function takes a [`context.Context`](https://golang.org/pkg/context/#Context), the configuration structure returned by [`NewConfig`](#newconfig),
-[`Info`](https://pkg.go.dev/github.com/glasslabs/looking-glass/module/types#Info) and [`UI`](https://pkg.go.dev/github.com/glasslabs/looking-glass/module/types#UI) objects.
-
-```go
-func New(ctx context.Context, cfg *Config, info types.Info, ui types.UI) (io.Closer, error)
-```
-
-#### Dependencies
-
-All dependencies must be vendored except for `github.com/glasslabs/looking-glass/module/types`. 
-If you still wish to use Go Modules for dependency management, you should run `go mod vendor` to 
-vendor your dependencies and commit your `vendor/modules.txt` to git.
-
-More information about vendoring can be found in the [Go Module Reference](https://golang.org/ref/mod#vendoring).
 
 ## TODO
 
