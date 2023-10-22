@@ -231,7 +231,7 @@ modules:
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			got, err := glass.ParseConfig(test.in, test.secrets)
+			got, err := glass.ParseConfig(test.in, "/some/path", test.secrets)
 
 			test.wantErr(t, err)
 			assert.Equal(t, test.want, got)
