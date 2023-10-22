@@ -8,17 +8,22 @@ import (
 	"net/url"
 	"os"
 	"path/filepath"
+
+	"github.com/hamba/logger/v2"
+	lctx "github.com/hamba/logger/v2/ctx"
 )
 
 // Downloader downloads and caches modules.
 type Downloader struct {
 	httpClient *http.Client
 	cachePath  string
+
+	log *logger.Logger
 }
 
 // NewDownloader returns a Downloader with the cachePath.
 // If the cache path does not exist, the reader attempts to create it.
-func NewDownloader(cachePath string) (*Downloader, error) {
+func NewDownloader(cachePath string, log *logger.Logger) (*Downloader, error) {
 	if err := ensurePath(cachePath); err != nil {
 		return nil, err
 	}
@@ -31,6 +36,7 @@ func NewDownloader(cachePath string) (*Downloader, error) {
 	return &Downloader{
 		httpClient: http.DefaultClient,
 		cachePath:  cachePath,
+		log:        log,
 	}, nil
 }
 
@@ -61,6 +67,8 @@ func (d *Downloader) withCache(path string, fn func() ([]byte, error)) (string, 
 	cachedPath := filepath.Join(d.cachePath, path)
 
 	if _, err := os.Stat(cachedPath); err == nil {
+		d.log.Info("Using cached module", lctx.Str("path", path))
+
 		return path, nil
 	}
 	b, err := fn()
@@ -80,6 +88,8 @@ func (d *Downloader) withCache(path string, fn func() ([]byte, error)) (string, 
 }
 
 func (d *Downloader) readHTTPFile(ctx context.Context, url string) ([]byte, error) {
+	d.log.Info("Downloading module", lctx.Str("url", url))
+
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
 	if err != nil {
 		return nil, err
