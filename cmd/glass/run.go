@@ -114,7 +114,7 @@ func loadConfig(file string, secrets map[string]any) (glass.Config, error) {
 	if err != nil {
 		return glass.Config{}, fmt.Errorf("could not read configuration file: %w", err)
 	}
-	cfg, err := glass.ParseConfig(in, secrets)
+	cfg, err := glass.ParseConfig(in, filepath.Dir(file), secrets)
 	if err != nil {
 		return glass.Config{}, fmt.Errorf("could not parse configuration file: %w", err)
 	}
