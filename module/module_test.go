@@ -3,7 +3,6 @@ package module_test
 import (
 	"bytes"
 	"context"
-	"io"
 	"testing"
 
 	"github.com/glasslabs/looking-glass/module"
@@ -15,8 +14,6 @@ import (
 )
 
 func TestPosition_UnmarshalYAML(t *testing.T) {
-	log := logger.New(io.Discard, logger.LogfmtFormat(), logger.Error)
-
 	tests := []struct {
 		position string
 		want     module.Position
