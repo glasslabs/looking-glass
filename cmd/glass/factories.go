@@ -6,8 +6,6 @@ import (
 	"github.com/hamba/cmd/v2/term"
 )
 
-// UI ======================================
-
 func newTerm() term.Term {
 	return term.Prefixed{
 		ErrorPrefix: "Error: ",

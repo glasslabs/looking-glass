@@ -76,8 +76,6 @@ func run(c *cli.Context) error {
 	}
 
 	for _, desc := range cfg.Modules {
-		desc := desc
-
 		if err = loader.Load(ctx, desc); err != nil {
 			return fmt.Errorf("could not load module: %w", err)
 		}
