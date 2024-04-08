@@ -6,7 +6,7 @@ toolchain go1.22.1
 
 require (
 	github.com/ettle/strcase v0.2.0
-	github.com/hamba/cmd/v2 v2.10.1
+	github.com/hamba/cmd/v2 v2.11.0
 	github.com/hamba/logger/v2 v2.5.1
 	github.com/hamba/pkg/v2 v2.10.1
 	github.com/joho/godotenv v1.5.1

@@ -37,8 +37,8 @@ github.com/grafana/pyroscope-go/godeltaprof v0.1.6 h1:nEdZ8louGAplSvIJi1HVp7kWvF
 github.com/grafana/pyroscope-go/godeltaprof v0.1.6/go.mod h1:Tk376Nbldo4Cha9RgiU7ik8WKFkNpfds98aUzS8omLE=
 github.com/grpc-ecosystem/grpc-gateway/v2 v2.19.0 h1:Wqo399gCIufwto+VfwCSvsnfGpF/w5E9CNxSwbpD6No=
 github.com/grpc-ecosystem/grpc-gateway/v2 v2.19.0/go.mod h1:qmOFXW2epJhM0qSnUUYpldc7gVz2KMQwJ/QYCDIa7XU=
-github.com/hamba/cmd/v2 v2.10.1 h1:uG2E9y469srOwuwFMREz6CzXleF+g3LJwUS7QLOQlVU=
-github.com/hamba/cmd/v2 v2.10.1/go.mod h1:m2ilgTQ6vz9MVrta+eRa79tW9H1V16BAeZpGTNybWU0=
+github.com/hamba/cmd/v2 v2.11.0 h1:J1+/e9Bl+gxc429DHV7VjhA+g6KHjgmIR8C+E7Uaf5s=
+github.com/hamba/cmd/v2 v2.11.0/go.mod h1:m2ilgTQ6vz9MVrta+eRa79tW9H1V16BAeZpGTNybWU0=
 github.com/hamba/logger/v2 v2.5.1 h1:EM+S6CPYIs66XmW9kK/RBghgtkLcO4kQWWPAlsIwNR4=
 github.com/hamba/logger/v2 v2.5.1/go.mod h1:b+y7XddZMTTSIjKdOOIHWlhg1hMoE9eKhanB9wPNLj0=
 github.com/hamba/pkg/v2 v2.10.1 h1:cXLzf1QjmiTGYM4OuqR7JGSLD4LyFVmu2H9KlZFC0Tg=
