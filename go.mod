@@ -8,7 +8,7 @@ require (
 	github.com/ettle/strcase v0.2.0
 	github.com/hamba/cmd/v2 v2.13.0
 	github.com/hamba/logger/v2 v2.7.0
-	github.com/hamba/pkg/v2 v2.11.0
+	github.com/hamba/pkg/v2 v2.12.0
 	github.com/joho/godotenv v1.5.1
 	github.com/stretchr/testify v1.9.0
 	github.com/urfave/cli/v2 v2.27.4
