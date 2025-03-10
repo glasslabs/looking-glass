@@ -11,7 +11,7 @@ require (
 	github.com/hamba/pkg/v2 v2.12.0
 	github.com/joho/godotenv v1.5.1
 	github.com/stretchr/testify v1.10.0
-	github.com/urfave/cli/v2 v2.27.5
+	github.com/urfave/cli/v2 v2.27.6
 	github.com/vincent-petithory/dataurl v1.0.0
 	github.com/zserge/lorca v0.1.10
 	gopkg.in/yaml.v3 v3.0.1
