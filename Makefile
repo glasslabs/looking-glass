@@ -35,7 +35,7 @@ build:
 # Static Assets
 
 wasmexec:
-	@cp $(shell go env GOROOT)/misc/wasm/wasm_exec.js ./webui
+	@cp $(shell go env GOROOT)/lib/wasm/wasm_exec.js ./webui
 .PHONY: wasmexec
 
 wasmexec-check: wasmexec

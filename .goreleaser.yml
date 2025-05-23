@@ -1,10 +1,10 @@
+version: 2
 project_name: looking-glass
 
 builds:
   - id: looking-glass
     binary: glass
     main: ./cmd/glass/
-
     goos:
       - darwin
       - linux
@@ -13,16 +13,15 @@ builds:
       - solaris
     goarch:
       - amd64
-      - 386
+      - '386'
       - arm
       - arm64
     goarm:
       - 7
       - 6
-
     ignore:
       - goos: darwin
-        goarch: 386
+        goarch: '386'
 
 changelog:
   sort: asc
@@ -37,7 +36,7 @@ changelog:
 archives:
   - id: archive
     name_template: '{{ .ProjectName }}_v{{ .Version }}_{{ .Os }}_{{ .Arch }}{{ if .Arm }}v{{ .Arm }}{{ end }}'
-    format: tar.gz
+    formats: ['tar.gz']
 
 release:
   prerelease: auto

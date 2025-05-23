@@ -1,59 +1,59 @@
+version: "2"
 run:
   tests: false
-  timeout: 5m
 
-linters-settings:
-  cyclop:
-    max-complexity: 20
-    skip-tests: true
-  funlen:
-    lines: 80
-  gofumpt:
-    extra-rules: true
+formatters:
+  enable:
+    - gci
+    - gofmt
+    - gofumpt
+    - goimports
+  settings:
+    gofumpt:
+      extra-rules: true
+  exclusions:
+    generated: lax
 
 linters:
-  enable-all: true
+  default: all
   disable:
-    - interfacer # deprecated
-    - scopelint # deprecated
-    - maligned # deprecated
-    - golint # deprecated
-    - nosnakecase # deprecated
-    - deadcode # deprecated
-    - structcheck # deprecated
-    - ifshort # deprecated
-    - varcheck # deprecated
-    - exhaustivestruct # deprecated
     - depguard
+    - err113
     - exhaustive
     - exhaustruct
     - forcetypeassert
+    - funcorder
     - funlen
     - gochecknoglobals
     - gochecknoinits
-    - goerr113
-    - gomnd
     - gomoddirectives
     - ireturn
+    - mnd
     - musttag
-    - nlreturn
     - nilerr
-    - nosnakecase
+    - nlreturn
     - varnamelen
     - wrapcheck
     - wsl
-
-issues:
-  exclude-use-default: false
-  exclude:
-    - 'ST1000: at least one file in a package should have a package comment'
-    - 'package-comments: should have a package comment'
-    - 'G302: Expect file permissions to be 0600 or less'
-    - 'G306: Expect WriteFile permissions to be 0600 or les'
-  exclude-rules:
-    - path: module/client.go
-      linters:
-        - noctx
-    - path: internal/modules/vendor.go
-      linters:
-        - prealloc
+  settings:
+    cyclop:
+      max-complexity: 20
+    gosec:
+      excludes:
+        - G302
+        - G306
+    lll:
+      line-length: 160
+  exclusions:
+    generated: lax
+    rules:
+      - linters:
+          - noctx
+        path: module/client.go
+      - linters:
+          - prealloc
+        path: internal/modules/vendor.go
+      - path: (.+)\.go$
+        text: 'ST1000: at least one file in a package should have a package comment'
+      - path: (.+)\.go$
+        text: 'package-comments: should have a package comment'
