@@ -48,11 +48,25 @@ jobs:
           parallel: true
           flag-name: go-${{ matrix.go-version }}
 
-      - name: Check wasm_exec
-        run: make wasmexec-check
-
       - name: Test Summary
         uses: test-summary/action@v2
         with:
           paths: "tests.xml"
         if: always()
+
+  wasm-check:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Install Go
+      id: install-go
+      uses: actions/setup-go@v5
+      with:
+        go-version-file: 'go.mod'
+
+    - name: Check wasm_exec
+      run: make wasmexec-check
