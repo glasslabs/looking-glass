@@ -6,52 +6,56 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"time"
 
 	glass "github.com/glasslabs/looking-glass"
 	"github.com/glasslabs/looking-glass/module"
-	"github.com/hamba/cmd/v2"
+	cmdx "github.com/hamba/cmd/v3"
 	lctx "github.com/hamba/logger/v2/ctx"
-	httpx "github.com/hamba/pkg/v2/http"
-	"github.com/urfave/cli/v2"
+	"github.com/hamba/pkg/v2/http/server"
+	"github.com/hamba/statter/v2"
+	"github.com/urfave/cli/v3"
 )
 
-func run(c *cli.Context) error {
-	ctx, cancel := context.WithCancel(c.Context)
+func run(ctx context.Context, cmd *cli.Command) error {
+	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
 
-	log, err := cmd.NewLogger(c)
-	if err != nil {
-		return err
-	}
-	logCancel := log.WithTimestamp()
-	defer logCancel()
-
-	secrets, err := loadSecrets(c.String(flagSecretsFile))
+	log, err := cmdx.NewLogger(cmd)
 	if err != nil {
 		return err
 	}
 
-	cfg, err := loadConfig(c.String(flagConfigFile), secrets)
+	secrets, err := loadSecrets(cmd.String(flagSecretsFile))
 	if err != nil {
 		return err
 	}
 
-	addr := c.String(flagAddr)
+	cfg, err := loadConfig(cmd.String(flagConfigFile), secrets)
+	if err != nil {
+		return err
+	}
+
 	mux := http.NewServeMux()
-	mux.Handle("/assets/", http.StripPrefix("/assets/", http.FileServer(http.Dir(c.String(flagAssetsPath)))))
-	mux.Handle("/modules/", http.StripPrefix("/modules/", http.FileServer(http.Dir(c.String(flagModPath)))))
+	mux.Handle("/assets/", http.StripPrefix("/assets/", http.FileServer(http.Dir(cmd.String(flagAssetsPath)))))
+	mux.Handle("/modules/", http.StripPrefix("/modules/", http.FileServer(http.Dir(cmd.String(flagModPath)))))
 
-	log.Info("Starting API server",
-		lctx.Str("ver", version),
-		lctx.Str("addr", addr),
-	)
+	addr := cmd.String(flagAddr)
+	srv := &server.GenericServer[context.Context]{
+		Addr:    addr,
+		Handler: mux,
+		Stats:   statter.New(statter.DiscardReporter, time.Hour),
+		Log:     log,
+	}
 
-	srv := httpx.NewServer(ctx, addr, mux, httpx.WithH2C())
-	srv.Serve(func(err error) {
-		log.Error("Server error", lctx.Err(err))
-		cancel()
-	})
-	defer func() { _ = srv.Close() }()
+	log.Info("Starting API server", lctx.Str("version", version), lctx.Str("addr", addr))
+	go func() {
+		if err = srv.Run(ctx); err != nil {
+			log.Error("Server error", lctx.Err(err))
+
+			cancel()
+		}
+	}()
 
 	ui, err := glass.NewUI(cfg.UI, log)
 	if err != nil {
@@ -66,7 +70,7 @@ func run(c *cli.Context) error {
 		AssetsURL: "http://" + addr + "/assets",
 	}
 
-	d, err := module.NewDownloader(c.String(flagModPath), log)
+	d, err := module.NewDownloader(cmd.String(flagModPath), log)
 	if err != nil {
 		return err
 	}
@@ -83,7 +87,7 @@ func run(c *cli.Context) error {
 
 	select {
 	case <-ui.Done():
-	case <-c.Done():
+	case <-ctx.Done():
 	}
 
 	cancel()

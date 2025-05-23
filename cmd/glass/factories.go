@@ -3,7 +3,7 @@ package main
 import (
 	"os"
 
-	"github.com/hamba/cmd/v2/term"
+	"github.com/hamba/cmd/v3/term"
 )
 
 func newTerm() term.Term {
