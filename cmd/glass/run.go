@@ -83,7 +83,7 @@ func run(c *cli.Context) error {
 
 	select {
 	case <-ui.Done():
-	case <-c.Context.Done():
+	case <-c.Done():
 	}
 
 	cancel()

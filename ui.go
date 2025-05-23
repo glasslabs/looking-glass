@@ -70,7 +70,7 @@ func NewUI(cfg UIConfig, log *logger.Logger) (*UI, error) {
 
 	val := win.Eval("loadCSS(`fonts`, `" + string(fonts) + "`);")
 	if val.Err() != nil {
-		return nil, fmt.Errorf("could not load fonts: %w", err)
+		return nil, fmt.Errorf("could not load fonts: %w", val.Err())
 	}
 	for i, cssPath := range cfg.CustomCSS {
 		b, err := os.ReadFile(filepath.Clean(cssPath))
@@ -80,7 +80,7 @@ func NewUI(cfg UIConfig, log *logger.Logger) (*UI, error) {
 		name := "customCSS" + strconv.Itoa(i+1)
 		val := win.Eval("loadCSS(`" + name + "`, `" + string(b) + "`);")
 		if val.Err() != nil {
-			return nil, fmt.Errorf("could not load custom css %q: %w", cssPath, err)
+			return nil, fmt.Errorf("could not load custom css %q: %w", cssPath, val.Err())
 		}
 	}
 
