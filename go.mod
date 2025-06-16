@@ -7,10 +7,10 @@ require (
 	github.com/hamba/cmd/v3 v3.0.0
 	github.com/hamba/logger/v2 v2.8.0
 	github.com/hamba/pkg/v2 v2.13.2
-	github.com/hamba/statter/v2 v2.6.1
+	github.com/hamba/statter/v2 v2.7.0
 	github.com/joho/godotenv v1.5.1
 	github.com/stretchr/testify v1.10.0
-	github.com/urfave/cli/v3 v3.3.3
+	github.com/urfave/cli/v3 v3.3.8
 	github.com/vincent-petithory/dataurl v1.0.0
 	github.com/zserge/lorca v0.1.10
 	gopkg.in/yaml.v3 v3.0.1
