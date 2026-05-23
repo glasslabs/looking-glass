@@ -22,8 +22,8 @@ import (
 // newWazeroRunner returns a Runner backed by a shared wazero runtime.
 // WASI and the looking-glass host module are instantiated once into the
 // runtime; individual plugin instances are compiled and cached by SHA-256.
-func newWazeroRunner(ui UIProvider, assetsPath string, log *logger.Logger) (*wazeroRunner, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second*10)
+func newWazeroRunner(ctx context.Context, ui UIProvider, assetsPath string, log *logger.Logger) (*wazeroRunner, error) {
+	ctx, cancel := context.WithTimeout(ctx, time.Second*10)
 	defer cancel()
 
 	rt := wazero.NewRuntimeWithConfig(ctx, wazero.NewRuntimeConfig().WithCloseOnContextDone(true))

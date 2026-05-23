@@ -8,7 +8,9 @@ import (
 	"regexp"
 	"strings"
 
+	"github.com/glasslabs/client-go"
 	"github.com/hamba/logger/v2"
+	lctx "github.com/hamba/logger/v2/ctx"
 )
 
 // Module positions.
@@ -93,77 +95,120 @@ func (d Descriptor) Validate() error {
 	return nil
 }
 
-// UI represents the UI manager.
-type UI interface {
-	Eval(js string) (any, error)
+// WidgetUpdater delivers serialized widget trees to the render pipeline.
+type WidgetUpdater interface {
+	Update(w client.Widget) error
 }
 
-// Runner represents a WASM runner.
+// UIProvider creates module containers and routes widget tree updates.
+type UIProvider interface {
+	// CreateModule registers a new module container at the given grid position.
+	CreateModule(name, vert, horiz string) error
+	// ModuleUI returns the WidgetUpdater for the named module.
+	// Returns nil if the module has not been registered.
+	ModuleUI(name string) WidgetUpdater
+}
+
+// PluginInstance is a running WASM plugin driven by the host.
+type PluginInstance interface {
+	// Run is a long-running call that drives the plugin until ctx is canceled.
+	// Plugins manage their own update cadence (polling timers, event subscriptions,
+	// etc.) inside Run.
+	Run(ctx context.Context) error
+	// Close releases plugin resources. Close is called after Run returns.
+	Close(ctx context.Context) error
+}
+
+// Runner compiles and instantiates WASM plugin modules.
 type Runner interface {
-	Run(name, path string, cfg map[string]any) error
+	Load(ctx context.Context, name string, wasmBytes []byte, cfg map[string]any) (PluginInstance, error)
+	Close(ctx context.Context) error
 }
 
 // ExecContext contains context for module execution.
 type ExecContext struct {
-	ModuleURL string
-	AssetsURL string
+	AssetsPath string
 }
 
-// Loader loads modules.
+// Loader loads and drives modules.
 type Loader struct {
-	ui     UI
+	ui     UIProvider
 	d      *Downloader
-	modURL *url.URL
-	env    map[string]string
-
 	runner Runner
-
-	log *logger.Logger
+	log    *logger.Logger
 }
 
-// New returns a module loader.
-func New(ui UI, d *Downloader, execCtx ExecContext, log *logger.Logger) (*Loader, error) {
-	u, err := url.Parse(execCtx.ModuleURL)
+// New returns a module Loader backed by a wazero Runner.
+func New(ctx context.Context, ui UIProvider, d *Downloader, execCtx ExecContext, log *logger.Logger) (*Loader, error) {
+	runner, err := newWazeroRunner(ctx, ui, execCtx.AssetsPath, log)
 	if err != nil {
-		return nil, fmt.Errorf("parsing modURL: %w", err)
-	}
-
-	env := map[string]string{
-		"ASSETS_URL": execCtx.AssetsURL,
-	}
-
-	runner, err := NewGoRunner(ui, env)
-	if err != nil {
-		return nil, fmt.Errorf("creating go module runner: %w", err)
+		return nil, fmt.Errorf("could not create runner: %w", err)
 	}
 
 	return &Loader{
 		ui:     ui,
 		d:      d,
-		modURL: u,
-		env:    env,
 		runner: runner,
 		log:    log,
 	}, nil
 }
 
-// Load loads a module.
-func (l *Loader) Load(ctx context.Context, desc Descriptor) error {
-	path, err := l.d.Download(ctx, desc.URI)
-	if err != nil {
-		return fmt.Errorf("reading module: %w", err)
-	}
+// NewWithRunner returns a module Loader using the supplied Runner.
+// Intended for testing; production code should use New.
+func NewWithRunner(ui UIProvider, d *Downloader, runner Runner, log *logger.Logger) (*Loader, error) {
+	return &Loader{
+		ui:     ui,
+		d:      d,
+		runner: runner,
+		log:    log,
+	}, nil
+}
 
-	u := l.modURL.JoinPath(path)
-
+// Load downloads, registers, and starts a module described by desc.
+// Setup is called once with the module configuration, then Run is started in a
+// goroutine where the plugin manages its own update cadence until ctx is cancelled.
+func (l *Loader) Load(ctx context.Context, desc Descriptor) {
 	name := strings.ReplaceAll(desc.Name, " ", "_")
 	pos := desc.Position
-	if _, err = l.ui.Eval(fmt.Sprintf(`createModule(%q, %q, %q);`, name, pos.Vertical, pos.Horizontal)); err != nil {
-		return fmt.Errorf("%s: creating module ui element: %w", name, err)
+
+	log := l.log.With(lctx.Str("module", name))
+
+	log.Debug("Downloading module bytes", lctx.Str("uri", desc.URI))
+
+	wasmBytes, err := l.d.DownloadBytes(ctx, desc.URI)
+	if err != nil {
+		l.log.Error("Could not read module", lctx.Err(err))
+		return
 	}
 
-	if err = l.runner.Run(name, u.String(), desc.Config); err != nil {
-		return fmt.Errorf("%s: running module: %w", name, err)
+	log.Debug("Module downloaded", lctx.Int("bytes", len(wasmBytes)))
+
+	if err = l.ui.CreateModule(name, pos.Vertical, pos.Horizontal); err != nil {
+		log.Error("Could not create module", lctx.Err(err))
+		return
 	}
-	return nil
+
+	log.Debug("Module created", lctx.Str("module", name))
+
+	go func() {
+		instance, err := l.runner.Load(ctx, name, wasmBytes, desc.Config)
+		if err != nil {
+			log.Error("Could not load module", lctx.Err(err))
+			return
+		}
+		defer func() {
+			_ = instance.Close(context.WithoutCancel(ctx))
+		}()
+
+		l.log.Info("Starting module", lctx.Str("module", name))
+
+		if runErr := instance.Run(ctx); runErr != nil && ctx.Err() == nil {
+			l.log.Error("Plugin run error", lctx.Str("module", name), lctx.Err(runErr))
+		}
+	}()
+}
+
+// Close closes the Loader and releases its underlying runner resources.
+func (l *Loader) Close(ctx context.Context) error {
+	return l.runner.Close(ctx)
 }
