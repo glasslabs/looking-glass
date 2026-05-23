@@ -2,29 +2,24 @@ package main
 
 import (
 	"context"
+	"errors"
 	"fmt"
-	"net/http"
 	"os"
 	"path/filepath"
-	"time"
 
 	glass "github.com/glasslabs/looking-glass"
 	"github.com/glasslabs/looking-glass/module"
-	cmdx "github.com/hamba/cmd/v3"
 	lctx "github.com/hamba/logger/v2/ctx"
-	"github.com/hamba/pkg/v2/http/server"
-	"github.com/hamba/statter/v2"
 	"github.com/urfave/cli/v3"
 )
 
 func run(ctx context.Context, cmd *cli.Command) error {
-	ctx, cancel := context.WithCancel(ctx)
-	defer cancel()
-
-	log, err := cmdx.NewLogger(cmd)
+	log, err := newLogger(cmd)
 	if err != nil {
 		return err
 	}
+
+	log.Info("Starting Looking Glass", lctx.Str("version", version))
 
 	secrets, err := loadSecrets(cmd.String(flagSecretsFile))
 	if err != nil {
@@ -36,63 +31,10 @@ func run(ctx context.Context, cmd *cli.Command) error {
 		return err
 	}
 
-	mux := http.NewServeMux()
-	mux.Handle("/assets/", http.StripPrefix("/assets/", http.FileServer(http.Dir(cmd.String(flagAssetsPath)))))
-	mux.Handle("/modules/", http.StripPrefix("/modules/", http.FileServer(http.Dir(cmd.String(flagModPath)))))
-
-	addr := cmd.String(flagAddr)
-	srv := &server.GenericServer[context.Context]{
-		Addr:    addr,
-		Handler: mux,
-		Stats:   statter.New(statter.DiscardReporter, time.Hour),
-		Log:     log,
-	}
-
-	log.Info("Starting API server", lctx.Str("version", version), lctx.Str("addr", addr))
-	go func() {
-		if err = srv.Run(ctx); err != nil {
-			log.Error("Server error", lctx.Err(err))
-
-			cancel()
-		}
-	}()
-
-	ui, err := glass.NewUI(cfg.UI, log)
-	if err != nil {
-		return err
-	}
-	defer func() {
-		_ = ui.Close()
-	}()
-
 	execCtx := module.ExecContext{
-		ModuleURL: "http://" + addr + "/modules",
-		AssetsURL: "http://" + addr + "/assets",
+		AssetsPath: cmd.String(flagAssetsPath),
 	}
-
-	d, err := module.NewDownloader(cmd.String(flagModPath), log)
-	if err != nil {
-		return err
-	}
-	loader, err := module.New(ui, d, execCtx, log)
-	if err != nil {
-		return err
-	}
-
-	for _, desc := range cfg.Modules {
-		if err = loader.Load(ctx, desc); err != nil {
-			return fmt.Errorf("could not load module: %w", err)
-		}
-	}
-
-	select {
-	case <-ui.Done():
-	case <-ctx.Done():
-	}
-
-	cancel()
-
-	return nil
+	return glass.Run(ctx, cfg, cmd.String(flagModPath), execCtx, log)
 }
 
 func loadSecrets(file string) (map[string]any, error) {
@@ -101,6 +43,10 @@ func loadSecrets(file string) (map[string]any, error) {
 	}
 
 	in, err := os.ReadFile(filepath.Clean(file))
+	if errors.Is(err, os.ErrNotExist) {
+		//nolint:nilnil
+		return nil, nil
+	}
 	if err != nil {
 		return nil, fmt.Errorf("could not read secrets file: %w", err)
 	}
