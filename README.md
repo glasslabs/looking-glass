@@ -6,84 +6,98 @@
 [![GitHub release](https://img.shields.io/github/release/glasslabs/looking-glass.svg)](https://github.com/glasslabs/looking-glass/releases)
 [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/glasslabs/looking-glass/main/LICENSE)
 
-Smart mirror platform written in Go leveraging WASM.
+Smart mirror platform written in Go. Modules are compiled to WebAssembly and loaded at runtime,
+making it easy to add new functionality without modifying the core application.
 
 ## Table of Contents
-* [Requirements](#requirements)
-* [Usage](#usage)
-    * [Run](#run) ([Options](#run-options))
-* [Configuration](#configuration)
-    * [Configuration Options](#configuration-options)
-    * [Configuration Variables](#configuration-variables)
-* [Modules](#modules)
-    * [Package Naming](#package-naming)
-    * [Development](#development)
+
+- [Requirements](#requirements)
+- [Installation](#installation)
+- [Usage](#usage)
+  - [Run](#run)
+  - [Run Options](#run-options)
+- [Configuration](#configuration)
+  - [Configuration Options](#configuration-options)
+  - [Template Variables](#template-variables)
+- [Module Positions](#module-positions)
+- [Modules](#modules)
+  - [Development](#development)
 
 ## Requirements
 
-**Chrome**
+A platform supported by [Gio](https://gioui.org): Linux, macOS, Windows, or Raspberry Pi OS.
 
-Chrome or Chromium must be installed. The version must be greater or equal to 70. If looking glass cannot find 
-Chrome, use the `LORCACHROME` environment variable to force the location of your installation.
+## Installation
 
-## Install
-
-On a fresh install of Raspberry Pi OS Lite, run the following command:
+Pre-built binaries for all supported platforms are available on the
+[releases page](https://github.com/glasslabs/looking-glass/releases). Download the
+archive for your platform, extract it, and place the `glass` binary somewhere on your
+`PATH`.
 
 ```shell
-bash -c "$(curl -fsSL https://git.io/looking_glass)"
-``` 
+# Example for Linux amd64
+curl -sSL https://github.com/glasslabs/looking-glass/releases/latest/download/glass_linux_amd64.tar.gz \
+  | tar -xz -C /usr/local/bin glass
+```
+
+### Building from Source
+
+If you prefer to build from source, Go 1.22 or later is required. Download the
+embedded Roboto fonts and then build the binary:
+
+```shell
+make fonts
+make build
+```
 
 ## Usage
 
 ### Run
 
-Runs looking glass using the specified configuration and modules path.
+Run looking-glass with a configuration file, an assets directory, and a module cache directory.
 
-```bash
-glass run -c /path/to/config.yaml -m /path/to/modules
+```shell
+glass run --config /path/to/config.yaml --assets /path/to/assets --modules /path/to/modules
 ```
 
-#### Run Options
+### Run Options
 
-**--secrets** FILE, **-s** FILE, **$SECRETS** *(Optional)*
+**`--secrets` FILE, `-s` FILE, `$SECRETS`** *(optional)*
 
-The path to the YAML secrets file to hold sensitive configuration values. Secrets can be accessed in the 
-configuration using [Go template syntax](https://golang.org/pkg/text/template/) using the ".Secrets" prefix.
+Path to a YAML file containing sensitive values. Secrets are available in the configuration
+file as `.Secrets.<key>` using Go template syntax.
 
-**--config** FILE, **-c** FILE, **$CONFIG** *(Required)*
+**`--config` FILE, `-c` FILE, `$CONFIG`** *(required)*
 
-The path to the YAML configuration file for `looking-glass` which includes module configuration. 
-This file will be parsed using [Go template syntax](https://golang.org/pkg/text/template/).
+Path to the YAML configuration file. The file is rendered as a
+[Go template](https://pkg.go.dev/text/template) before parsing.
 
-**--assets** PATH, **-a** PATH, **$ASSETS** *(Required)*
+**`--assets` PATH, `-a` PATH, `$ASSETS`** *(required)*
 
-The path to the assets.
+Path to the assets directory served to modules.
 
-**--modules** PATH, **-m** PATH, **$MODULES** *(Required)*
+**`--modules` PATH, `-m` PATH, `$MODULES`** *(required)*
 
-The path to the module cache. 
+Path to the module cache directory. Downloaded WASM modules are stored here.
 
-**--log.format** FORMAT, **$LOG_FORMAT** *(Default: "logfmt")*
+**`--log.format` FORMAT, `$LOG_FORMAT`** *(default: `logfmt`)*
 
-Specify the format of logs. Supported formats: 'logfmt', 'json', 'console'.
+Log output format. Supported values: `logfmt`, `json`, `console`.
 
-**--log.level** LEVEL, **$LOG_LEVEL** *(Default: "info")*
+**`--log.level` LEVEL, `$LOG_LEVEL`** *(default: `info`)*
 
-Specify the log level. Supported levels: 'debug', 'info', 'warn', 'error', 'crit'.
+Minimum log level. Supported values: `debug`, `info`, `warn`, `error`, `crit`.
 
 ## Configuration
 
 ```yaml
 ui:
-  width:  640
-  height: 480
-  fullscreen: true
-  customCss:
-    - path/to/custom.css
+  width: 1024
+  height: 760
+  fullscreen: false
 modules:
   - name: simple-clock
-    url: https://github.com/glasslabs/clock/releases/download/v1.0.0/clock.wasm
+    uri: https://github.com/glasslabs/clock/releases/download/v1.0.0/clock.wasm
     position: top:right
   - name: simple-weather
     uri: https://github.com/glasslabs/weather/releases/download/v1.0.0/weather.wasm
@@ -92,69 +106,91 @@ modules:
       locationId: 996506
       appId: {{ .Secrets.weather.appId }}
       units: metric
+  - name: simple-calendar
+    uri: https://github.com/glasslabs/calendar/releases/download/v1.0.0/calendar.wasm
+    position: top:right
+    config:
+      timezone: Africa/Johannesburg
+      maxDays: 5
+      calendars:
+        - url: {{ .Secrets.calendar.myCalendar }}
 ```
-
-The module configuration can contain secrets from the secrets YAML prefixed with `.Secrets`
-as shown in the example above.
 
 ### Configuration Options
 
-**ui.width**
+**`ui.width`**
 
-The width of the chrome window.
+Width of the window in pixels.
 
-**ui.height**
+**`ui.height`**
 
-The height of the chrome window.
+Height of the window in pixels.
 
-**ui.fullscreen**
+**`ui.fullscreen`**
 
-If the chrome window should start fullscreen.
+Whether the window starts in fullscreen mode.
 
-**ui.customCSS**
+**`modules[].name`**
 
-A list of custom css files to load. These can be used to customise the layout of looking glass.
+Unique name for the module. Used to identify the module within the layout.
 
-**modules.[].name**
+**`modules[].uri`**
 
-The name of the module. This name must be unique. This is used as the ID of the module HTML wrapper.
+HTTP(S) URL or local file path to the module WASM file. The file is downloaded and
+cached in the modules directory on first use.
 
-**modules.[].url**
+**`modules[].position`**
 
-The module URL or path of the module under the modules path.
+Position of the module in the layout grid. See [Module Positions](#module-positions).
 
-**modules.[].position**
+**`modules[].config`**
 
-The position of the module.
+Arbitrary YAML configuration passed to the module at startup.
 
-**modules.[].config**
+### Template Variables
 
-The configuration that will be passed to the module.
+The configuration file is rendered as a [Go template](https://pkg.go.dev/text/template)
+before parsing. The following variables are available:
 
-### Configuration Variables
+**`.Secrets`**
 
-The configuration file will be parsed using [Go template syntax](https://golang.org/pkg/text/template/). The available variables are:
+Values from the secrets file, accessible by key path (e.g. `.Secrets.weather.appId`).
 
-**Secrets**
+**`.Env`**
 
-The secrets in the case they appear in the secrets file.
+Environment variables available at startup, accessible by name (e.g. `.Env.HOME`).
 
-**Env**
+**`.ConfigPath`**
 
-The environment variables available when running looking-glass.
+The directory containing the configuration file. Useful for constructing paths to
+assets that live alongside the config.
+
+## Module Positions
+
+Modules are placed on a 3×3 grid. The position is specified as `<vertical>:<horizontal>`.
+
+| | `left` | `center` | `right` |
+|---|---|---|---|
+| **`top`** | `top:left` | `top:center` | `top:right` |
+| **`middle`** | `middle:left` | `middle:center` | `middle:right` |
+| **`bottom`** | `bottom:left` | `bottom:center` | `bottom:right` |
+
+Multiple modules can share the same position; they are stacked vertically within that cell.
 
 ## Modules
 
-You can discover modules on GitHub using [GitHub Search](https://github.com/search?q=topic%3Alooking-glass+topic%3Amodule+language%3AGo&ref=simplesearch).
+Discover community modules on GitHub using the
+[`looking-glass` + `module` topics](https://github.com/search?q=topic%3Alooking-glass+topic%3Amodule+language%3AGo&ref=simplesearch).
 
 ### Development
 
-To make your module discoverable on GitHub, add the topics `looking-glass` and `module`.
+Modules are Go programs compiled to `GOOS=wasip1 GOARCH=wasm`. The
+[`glasslabs/client-go`](https://github.com/glasslabs/client-go) package provides the
+host API for rendering widgets, logging, and making HTTP requests.
 
-## TODO
+```shell
+GOOS=wasip1 GOARCH=wasm go build -o my-module.wasm .
+```
 
-This is very much a work in progress and under active development. The immediate list of
-things to do is below:
-
-* Localisation
-* Testing Framework for Modules
+To make a module discoverable on GitHub, add the topics `looking-glass` and `module`
+to the repository.
