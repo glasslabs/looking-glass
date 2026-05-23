@@ -40,11 +40,6 @@ test:
 	@go test -cover -race ./...
 .PHONY: test
 
-# Build the commands
-build:
-	@find ./cmd/* -maxdepth 1 -type d -exec go build {} \;
-.PHONY: build
-
 # Build all WASM plugin modules and install them into .test/modules/
 # Run this before `make run` whenever a plugin source changes.
 build-modules:

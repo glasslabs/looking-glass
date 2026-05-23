@@ -1,0 +1,51 @@
+name: Setup
+description: Install system dependencies, Go, and cache Go modules.
+
+outputs:
+  gomodcache:
+    description: Go module cache path.
+    value: ${{ steps.go-env.outputs.gomodcache }}
+  gocache:
+    description: Go build/test cache path.
+    value: ${{ steps.go-env.outputs.gocache }}
+
+runs:
+  using: composite
+  steps:
+    - name: Install dependencies
+      shell: bash
+      run: |
+        make fonts
+        sudo apt-get update
+        sudo apt-get install -y \
+          libegl-dev libvulkan-dev \
+          libx11-dev libx11-xcb-dev libxcursor-dev libxfixes-dev \
+          libwayland-dev \
+          libxkbcommon-dev libxkbcommon-x11-dev
+
+    - name: Install Go
+      uses: actions/setup-go@v6
+      with:
+        go-version-file: 'go.mod'
+        cache: false
+
+    - name: Get Go paths
+      id: go-env
+      shell: bash
+      run: |
+        echo "gomodcache=$(go env GOMODCACHE)" >> "$GITHUB_OUTPUT"
+        echo "gocache=$(go env GOCACHE)"       >> "$GITHUB_OUTPUT"
+
+    - name: Cache Go modules
+      id: mod-cache
+      uses: actions/cache@v4
+      with:
+        path: ${{ steps.go-env.outputs.gomodcache }}
+        key: ${{ runner.os }}-gomod-${{ hashFiles('**/go.sum') }}
+        restore-keys: |
+          ${{ runner.os }}-gomod-
+
+    - name: Download dependencies
+      shell: bash
+      run: go mod download
+      if: steps.mod-cache.outputs.cache-hit != 'true'
