@@ -40,6 +40,21 @@ func NewDownloader(cachePath string, log *logger.Logger) (*Downloader, error) {
 	}, nil
 }
 
+// DownloadBytes fetches the file given by uri, caching it locally, and returns
+// its contents as bytes. It is the counterpart to Download used by ExtismRunner.
+func (d *Downloader) DownloadBytes(ctx context.Context, uri string) ([]byte, error) {
+	path, err := d.Download(ctx, uri)
+	if err != nil {
+		return nil, err
+	}
+	//nolint:gosec // Path is constructed from trusted cache directory and validated module path.
+	data, err := os.ReadFile(filepath.Join(d.cachePath, path))
+	if err != nil {
+		return nil, fmt.Errorf("reading module file: %w", err)
+	}
+	return data, nil
+}
+
 // Download fetches the file given in uri, caching it locally.
 func (d *Downloader) Download(ctx context.Context, uri string) (string, error) {
 	u, err := url.Parse(uri)
@@ -112,9 +127,6 @@ func (d *Downloader) readHTTPFile(ctx context.Context, url string) ([]byte, erro
 }
 
 func ensurePath(path string) error {
-	if _, err := os.Stat(path); err == nil {
-		return nil
-	}
 	if err := os.MkdirAll(path, 0o750); err != nil {
 		return fmt.Errorf("creating path %q: %w", path, err)
 	}

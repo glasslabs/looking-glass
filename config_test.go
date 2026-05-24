@@ -5,6 +5,7 @@ import (
 
 	glass "github.com/glasslabs/looking-glass"
 	"github.com/glasslabs/looking-glass/module"
+	"github.com/glasslabs/looking-glass/ui"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -49,7 +50,7 @@ func TestConfig_Validate(t *testing.T) {
 		{
 			name: "valid config",
 			config: glass.Config{
-				UI: glass.UIConfig{
+				UI: ui.Config{
 					Width:  1,
 					Height: 1,
 				},
@@ -65,7 +66,7 @@ func TestConfig_Validate(t *testing.T) {
 		{
 			name: "handles zero width",
 			config: glass.Config{
-				UI: glass.UIConfig{
+				UI: ui.Config{
 					Width:  0,
 					Height: 1,
 				},
@@ -76,12 +77,12 @@ func TestConfig_Validate(t *testing.T) {
 					},
 				},
 			},
-			wantErr: "config: ui width and height muse be greater than zero",
+			wantErr: "config: ui width and height must be greater than zero",
 		},
 		{
 			name: "handles zero height",
 			config: glass.Config{
-				UI: glass.UIConfig{
+				UI: ui.Config{
 					Width:  1,
 					Height: 0,
 				},
@@ -92,12 +93,12 @@ func TestConfig_Validate(t *testing.T) {
 					},
 				},
 			},
-			wantErr: "config: ui width and height muse be greater than zero",
+			wantErr: "config: ui width and height must be greater than zero",
 		},
 		{
 			name: "handles no modules",
 			config: glass.Config{
-				UI: glass.UIConfig{
+				UI: ui.Config{
 					Width:  1,
 					Height: 1,
 				},
@@ -107,7 +108,7 @@ func TestConfig_Validate(t *testing.T) {
 		{
 			name: "handles invalid module",
 			config: glass.Config{
-				UI: glass.UIConfig{
+				UI: ui.Config{
 					Width:  1,
 					Height: 1,
 				},
@@ -123,7 +124,7 @@ func TestConfig_Validate(t *testing.T) {
 		{
 			name: "handles duplicate module name",
 			config: glass.Config{
-				UI: glass.UIConfig{
+				UI: ui.Config{
 					Width:  1,
 					Height: 1,
 				},
@@ -179,7 +180,7 @@ modules:
 `),
 			secrets: map[string]any{"test": "some/path"},
 			want: glass.Config{
-				UI: glass.UIConfig{
+				UI: ui.Config{
 					Width:      1024,
 					Height:     768,
 					Fullscreen: false,
@@ -198,7 +199,7 @@ modules:
 			name: "invalid config",
 			in:   []byte("test: something: 1"),
 			want: glass.Config{
-				UI: glass.UIConfig{
+				UI: ui.Config{
 					Width:      640,
 					Height:     480,
 					Fullscreen: true,
@@ -219,7 +220,7 @@ modules:
     position: top:right
 `),
 			want: glass.Config{
-				UI: glass.UIConfig{
+				UI: ui.Config{
 					Width:      640,
 					Height:     480,
 					Fullscreen: true,

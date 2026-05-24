@@ -18,6 +18,7 @@ linters:
   default: all
   disable:
     - depguard
+    - dogsled
     - err113
     - exhaustive
     - exhaustruct
@@ -26,25 +27,31 @@ linters:
     - funlen
     - gochecknoglobals
     - gochecknoinits
+    - gocyclo
     - gomoddirectives
     - ireturn
     - mnd
     - musttag
     - nilerr
     - nlreturn
+    - noinlineerr
     - nonamedreturns
     - varnamelen
     - wrapcheck
     - wsl
+    - wsl_v5
   settings:
     cyclop:
       max-complexity: 20
     gosec:
       excludes:
+        - G115
         - G302
         - G306
     lll:
       line-length: 160
+    perfsprint:
+      error-format: false
   exclusions:
     generated: lax
     rules:

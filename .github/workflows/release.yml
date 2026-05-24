@@ -4,28 +4,41 @@ on:
       - '*'
 
 name: release
+
+permissions:
+  contents: write
+
 jobs:
   release:
+    strategy:
+      matrix:
+        runs-on: [ubuntu-24.04, ubuntu-24.04-arm]
 
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.runs-on }}
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
-      - name: Install Go
-        id: install-go
-        uses: actions/setup-go@v5
+      - name: Setup
+        id: setup
+        uses: ./.github/actions/setup
+
+      - name: Cache Go build cache
+        uses: actions/cache@v4
         with:
-          go-version-file: 'go.mod'
+          path: ${{ steps.setup.outputs.gocache }}
+          key: ${{ runner.os }}-${{ matrix.runs-on }}-gobuild-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-${{ matrix.runs-on }}-gobuild-
 
-      - name: Download dependencies
-        run: go mod download
-        if: steps.install-go.outputs.cache-hit != 'true'
+      - name: Build
+        run: go build -o glass ./cmd/glass
 
-      - name: Run GoReleaser
-        uses: goreleaser/goreleaser-action@v6
-        with:
-          args: release --clean
+      - name: Package
+        run: zip "glass-${GITHUB_REF_NAME}-linux-$(go env GOARCH).zip" glass
+
+      - name: Upload release artifact
+        run: gh release upload "${GITHUB_REF_NAME}" "glass-${GITHUB_REF_NAME}-linux-$(go env GOARCH).zip"
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

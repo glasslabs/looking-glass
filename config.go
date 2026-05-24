@@ -9,6 +9,7 @@ import (
 	"text/template"
 
 	"github.com/glasslabs/looking-glass/module"
+	"github.com/glasslabs/looking-glass/ui"
 	"gopkg.in/yaml.v3"
 )
 
@@ -21,7 +22,7 @@ func ParseSecrets(in []byte) (map[string]any, error) {
 
 // Config contains the main configuration.
 type Config struct {
-	UI      UIConfig            `yaml:"ui"`
+	UI      ui.Config           `yaml:"ui"`
 	Modules []module.Descriptor `yaml:"modules"`
 }
 
@@ -50,7 +51,7 @@ func (c Config) Validate() error {
 
 func defaultConfig() Config {
 	return Config{
-		UI: UIConfig{
+		UI: ui.Config{
 			Width:      640,
 			Height:     480,
 			Fullscreen: true,
