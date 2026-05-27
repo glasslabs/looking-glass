@@ -61,6 +61,13 @@ jobs:
     strategy:
       matrix:
         runs-on: [ubuntu-24.04, ubuntu-24.04-arm]
+        variant:
+          # Wayland-only: no X11 libs needed at build or runtime.
+          - { name: wayland, tags: nox11,     apt: "libwayland-dev" }
+          # X11-only: no Wayland libs needed at build or runtime.
+          - { name: x11,     tags: nowayland, apt: "libx11-dev libx11-xcb-dev libxcursor-dev libxfixes-dev libxkbcommon-x11-dev" }
+          # Full: both backends compiled in; requires both lib sets at runtime.
+          - { name: full,    tags: "",        apt: "libwayland-dev libx11-dev libx11-xcb-dev libxcursor-dev libxfixes-dev libxkbcommon-x11-dev" }
 
     runs-on: ${{ matrix.runs-on }}
 
@@ -71,6 +78,8 @@ jobs:
       - name: Setup
         id: setup
         uses: ./.github/actions/setup
+        with:
+          variant-apt: ${{ matrix.variant.apt }}
 
       - name: Cache Go build cache
         uses: actions/cache@v5

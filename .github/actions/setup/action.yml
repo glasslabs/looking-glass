@@ -5,7 +5,7 @@ inputs:
   variant-apt:
     description: Variant-specific apt packages (window-system libs for the selected Gio backend).
     required: false
-    default: ''
+    default: 'libwayland-dev libx11-dev libx11-xcb-dev libxcursor-dev libxfixes-dev libxkbcommon-x11-dev'
 
 outputs:
   gomodcache:
