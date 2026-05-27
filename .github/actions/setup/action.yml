@@ -1,6 +1,12 @@
 name: Setup
 description: Install system dependencies, Go, and cache Go modules.
 
+inputs:
+  variant-apt:
+    description: Variant-specific apt packages (window-system libs for the selected Gio backend).
+    required: false
+    default: ''
+
 outputs:
   gomodcache:
     description: Go module cache path.
@@ -17,11 +23,12 @@ runs:
       run: |
         make fonts
         sudo apt-get update
+        # libegl-dev libvulkan-dev libxkbcommon-dev are needed by all Gio backends (GPU rendering + keyboard).
+        # The variant-apt input carries the window-system libs specific to each backend.
         sudo apt-get install -y \
           libegl-dev libvulkan-dev \
-          libx11-dev libx11-xcb-dev libxcursor-dev libxfixes-dev \
-          libwayland-dev \
-          libxkbcommon-dev libxkbcommon-x11-dev
+          libxkbcommon-dev \
+          ${{ inputs.variant-apt }}
 
     - name: Install Go
       uses: actions/setup-go@v6
