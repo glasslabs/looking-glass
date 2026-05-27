@@ -85,17 +85,19 @@ jobs:
         uses: actions/cache@v5
         with:
           path: ${{ steps.setup.outputs.gocache }}
-          key: ${{ runner.os }}-${{ matrix.runs-on }}-gobuild-${{ hashFiles('**/go.sum') }}
+          key: ${{ runner.os }}-${{ matrix.runs-on }}-${{ matrix.variant.name }}-gobuild-${{ hashFiles('**/go.sum') }}
           restore-keys: |
-            ${{ runner.os }}-${{ matrix.runs-on }}-gobuild-
+            ${{ runner.os }}-${{ matrix.runs-on }}-${{ matrix.variant.name }}-gobuild-
 
       - name: Build
-        run: go build ./cmd/glass
+        run: go build ${TAGS:+-tags "$TAGS"} ./cmd/glass
+        env:
+          TAGS: ${{ matrix.variant.tags }}
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v7
         with:
-          name: glass-${{ matrix.runs-on }}
+          name: glass-${{ matrix.runs-on }}-${{ matrix.variant.name }}
           path: glass
 
   ci:
