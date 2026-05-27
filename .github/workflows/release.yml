@@ -13,6 +13,10 @@ jobs:
     strategy:
       matrix:
         runs-on: [ubuntu-24.04, ubuntu-24.04-arm]
+        variant:
+          - { name: wayland }
+          - { name: x11     }
+          - { name: full    }
 
     runs-on: ${{ matrix.runs-on }}
 
@@ -23,22 +27,26 @@ jobs:
       - name: Setup
         id: setup
         uses: ./.github/actions/setup
+        with:
+          variant: ${{ matrix.variant.name }}
 
       - name: Cache Go build cache
         uses: actions/cache@v5
         with:
           path: ${{ steps.setup.outputs.gocache }}
-          key: ${{ runner.os }}-${{ matrix.runs-on }}-gobuild-${{ hashFiles('**/go.sum') }}
+          key: ${{ runner.os }}-${{ matrix.runs-on }}-${{ matrix.variant.name }}-gobuild-${{ hashFiles('**/go.sum') }}
           restore-keys: |
-            ${{ runner.os }}-${{ matrix.runs-on }}-gobuild-
+            ${{ runner.os }}-${{ matrix.runs-on }}-${{ matrix.variant.name }}-gobuild-
 
       - name: Build
-        run: go build -o glass ./cmd/glass
+        run: go build ${TAGS:+-tags "$TAGS"} -o glass ./cmd/glass
+        env:
+          TAGS: ${{ steps.setup.outputs.tags }}
 
       - name: Package
-        run: zip "glass-${GITHUB_REF_NAME}-linux-$(go env GOARCH).zip" glass
+        run: zip "glass-${GITHUB_REF_NAME}-linux-$(go env GOARCH)-${{ matrix.variant.name }}.zip" glass
 
       - name: Upload release artifact
-        run: gh release upload "${GITHUB_REF_NAME}" "glass-${GITHUB_REF_NAME}-linux-$(go env GOARCH).zip"
+        run: gh release upload "${GITHUB_REF_NAME}" "glass-${GITHUB_REF_NAME}-linux-$(go env GOARCH)-${{ matrix.variant.name }}.zip"
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

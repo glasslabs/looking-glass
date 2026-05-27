@@ -1,6 +1,12 @@
 name: Setup
 description: Install system dependencies, Go, and cache Go modules.
 
+inputs:
+  variant:
+    description: "Gio window-system backend variant: wayland, x11, or full."
+    required: false
+    default: full
+
 outputs:
   gomodcache:
     description: Go module cache path.
@@ -8,20 +14,36 @@ outputs:
   gocache:
     description: Go build/test cache path.
     value: ${{ steps.go-env.outputs.gocache }}
+  tags:
+    description: Go build tags for the selected variant (empty string for full).
+    value: ${{ steps.variant.outputs.tags }}
 
 runs:
   using: composite
   steps:
+    - name: Resolve variant
+      id: variant
+      shell: bash
+      run: |
+        case "${{ inputs.variant }}" in
+          wayland) TAGS="nox11"     ; PKGS="libwayland-dev" ;;
+          x11)     TAGS="nowayland" ; PKGS="libx11-dev libx11-xcb-dev libxcursor-dev libxfixes-dev libxkbcommon-x11-dev" ;;
+          full)    TAGS=""          ; PKGS="libwayland-dev libx11-dev libx11-xcb-dev libxcursor-dev libxfixes-dev libxkbcommon-x11-dev" ;;
+          *) echo "Unknown variant: ${{ inputs.variant }}" >&2; exit 1 ;;
+        esac
+        echo "tags=${TAGS}"   >> "$GITHUB_OUTPUT"
+        echo "pkgs=${PKGS}"   >> "$GITHUB_OUTPUT"
+
     - name: Install dependencies
       shell: bash
       run: |
         make fonts
         sudo apt-get update
+        # libegl-dev libvulkan-dev libxkbcommon-dev are needed by every variant (GPU rendering + keyboard).
+        # shellcheck disable=SC2086
         sudo apt-get install -y \
-          libegl-dev libvulkan-dev \
-          libx11-dev libx11-xcb-dev libxcursor-dev libxfixes-dev \
-          libwayland-dev \
-          libxkbcommon-dev libxkbcommon-x11-dev
+          libegl-dev libvulkan-dev libxkbcommon-dev \
+          ${{ steps.variant.outputs.pkgs }}
 
     - name: Install Go
       uses: actions/setup-go@v6
