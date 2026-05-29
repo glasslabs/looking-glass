@@ -26,9 +26,10 @@ runs:
       shell: bash
       run: |
         case "${{ inputs.variant }}" in
-          wayland) TAGS="nox11"     ; PKGS="libwayland-dev" ;;
-          x11)     TAGS="nowayland" ; PKGS="libx11-dev libx11-xcb-dev libxcursor-dev libxfixes-dev libxkbcommon-x11-dev" ;;
-          full)    TAGS=""          ; PKGS="libwayland-dev libx11-dev libx11-xcb-dev libxcursor-dev libxfixes-dev libxkbcommon-x11-dev" ;;
+          wayland)     TAGS="nox11"     ; PKGS="libwayland-dev" ;;
+          x11)         TAGS="nowayland" ; PKGS="libx11-dev libx11-xcb-dev libxcursor-dev libxfixes-dev libxkbcommon-x11-dev" ;;
+          framebuffer) TAGS="nox11 nowayland" ; PKGS="" ;;
+          full)        TAGS=""          ; PKGS="libwayland-dev libx11-dev libx11-xcb-dev libxcursor-dev libxfixes-dev libxkbcommon-x11-dev" ;;
           *) echo "Unknown variant: ${{ inputs.variant }}" >&2; exit 1 ;;
         esac
         echo "tags=${TAGS}"   >> "$GITHUB_OUTPUT"
