@@ -62,9 +62,10 @@ jobs:
       matrix:
         runs-on: [ubuntu-24.04, ubuntu-24.04-arm]
         variant:
-          - { name: wayland }
-          - { name: x11     }
-          - { name: full    }
+          - { name: wayland     }
+          - { name: x11         }
+          - { name: framebuffer }
+          - { name: full        }
 
     runs-on: ${{ matrix.runs-on }}
 
