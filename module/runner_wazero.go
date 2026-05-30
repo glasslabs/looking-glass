@@ -9,7 +9,6 @@ import (
 	"fmt"
 	"strings"
 	"sync"
-	"time"
 
 	"github.com/hamba/logger/v2"
 	lctx "github.com/hamba/logger/v2/ctx"
@@ -23,9 +22,6 @@ import (
 // WASI and the looking-glass host module are instantiated once into the
 // runtime; individual plugin instances are compiled and cached by SHA-256.
 func newWazeroRunner(ctx context.Context, ui UIProvider, assetsPath string, log *logger.Logger) (*wazeroRunner, error) {
-	ctx, cancel := context.WithTimeout(ctx, time.Second*10)
-	defer cancel()
-
 	rt := wazero.NewRuntimeWithConfig(ctx, wazero.NewRuntimeConfig().WithCloseOnContextDone(true))
 
 	wasi_snapshot_preview1.MustInstantiate(ctx, rt)
