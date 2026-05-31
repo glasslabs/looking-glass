@@ -108,6 +108,8 @@ func (r *wazeroRunner) Load(ctx context.Context, name string, wasmBytes []byte, 
 
 // Close shuts down the wazero runtime and all instantiated modules.
 func (r *wazeroRunner) Close(ctx context.Context) error {
+	r.log.Debug("Closing WASM runner")
+
 	return r.runtime.Close(ctx)
 }
 
@@ -128,8 +130,7 @@ func (i *wazeroInstance) Run(ctx context.Context) error {
 	}
 	_, err := startFn.Call(ctx)
 	if err != nil && ctx.Err() == nil {
-		var exitErr *sys.ExitError
-		if errors.As(err, &exitErr) && exitErr.ExitCode() == 0 {
+		if exitErr, ok := errors.AsType[*sys.ExitError](err); ok && exitErr.ExitCode() == 0 {
 			return nil
 		}
 		return fmt.Errorf("run: %w", err)

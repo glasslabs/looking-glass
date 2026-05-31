@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"sync"
+	"time"
 
 	"github.com/glasslabs/looking-glass/module"
 	"github.com/glasslabs/looking-glass/ui"
@@ -38,7 +39,6 @@ func Run(ctx context.Context, cfg Config, cachePath string, execCtx module.ExecC
 
 	gioUI := ui.New(cfg.UI, log)
 	defer func() { _ = gioUI.Close() }()
-	context.AfterFunc(ctx, func() { _ = gioUI.Close() })
 
 	log.Debug("Creating module downloader", lctx.Str("cache", cachePath))
 
@@ -51,13 +51,16 @@ func Run(ctx context.Context, cfg Config, cachePath string, execCtx module.ExecC
 	if err != nil {
 		return err
 	}
-	defer func() { _ = loader.Close(context.WithoutCancel(ctx)) }()
+	defer func() {
+		log.Debug("Closing Loader")
 
-	// Load modules in a background goroutine so the Gio window event loop
-	// starts immediately. On macOS (Cocoa) the window cannot render until
-	// app.Window.Event() is called; delaying that call until after all WASM
-	// modules are compiled (which can take tens of seconds) means the window
-	// never appears.
+		// Ensure the loader close cannot hang forever.
+		closeCtx, closeCancel := context.WithTimeout(context.WithoutCancel(ctx), 2*time.Second)
+		defer closeCancel()
+
+		_ = loader.Close(closeCtx)
+	}()
+
 	var wg sync.WaitGroup
 	wg.Go(func() {
 		for _, desc := range cfg.Modules {
@@ -66,7 +69,11 @@ func Run(ctx context.Context, cfg Config, cachePath string, execCtx module.ExecC
 			loader.Load(ctx, desc)
 		}
 	})
-	defer wg.Wait()
+	defer func() {
+		log.Debug("Stopping modules")
+
+		wg.Wait()
+	}()
 
 	log.Debug("Starting render loop")
 
