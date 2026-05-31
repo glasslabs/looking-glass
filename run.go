@@ -78,6 +78,8 @@ func Run(ctx context.Context, cfg Config, cachePath string, execCtx module.ExecC
 	log.Debug("Starting render loop")
 
 	if err = gioUI.Run(ctx); err != nil && !errors.Is(err, context.Canceled) {
+		log.Debug("UI loop ended with error", lctx.Err(err))
+
 		cancel()
 
 		return err

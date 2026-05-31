@@ -34,7 +34,15 @@ func run(ctx context.Context, cmd *cli.Command) error {
 	execCtx := module.ExecContext{
 		AssetsPath: cmd.String(flagAssetsPath),
 	}
-	return glass.Run(ctx, cfg, cmd.String(flagModPath), execCtx, log)
+	if err = glass.Run(ctx, cfg, cmd.String(flagModPath), execCtx, log); err != nil {
+		log.Error("Looking Glass Shutdown", lctx.Err(err))
+
+		return err
+	}
+
+	log.Info("Looking Glass Shutdown")
+
+	return nil
 }
 
 func loadSecrets(file string) (map[string]any, error) {
