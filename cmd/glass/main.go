@@ -88,12 +88,11 @@ func main() {
 	// app.Main must run on the OS main thread for Gio windowing to work on
 	// macOS (Cocoa) and some other platforms. The application logic runs in a
 	// goroutine and signals completion via the exit code channel.
-	exitCode := make(chan int, 1)
 	go func() {
-		exitCode <- realMain()
+		code := realMain()
+		os.Exit(code)
 	}()
 	app.Main()
-	os.Exit(<-exitCode)
 }
 
 func realMain() (code int) {
