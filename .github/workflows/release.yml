@@ -16,7 +16,6 @@ jobs:
         variant:
           - { name: wayland     }
           - { name: x11         }
-          - { name: framebuffer }
           - { name: full        }
 
     runs-on: ${{ matrix.runs-on }}
