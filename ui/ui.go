@@ -17,6 +17,7 @@ import (
 	"gioui.org/unit"
 	"github.com/glasslabs/client-go"
 	"github.com/hamba/logger/v2"
+	lctx "github.com/hamba/logger/v2/ctx"
 )
 
 const (
@@ -114,6 +115,9 @@ func (u *UI) Run(ctx context.Context) error {
 		}
 
 		if !u.win.Frame(func(gtx layout.Context) { u.doLayout(gtx) }) {
+			if u.win.exitErr != nil && !errors.Is(u.win.exitErr, context.Canceled) {
+				u.log.Error("Exiting UI", lctx.Err(u.win.exitErr))
+			}
 			return nil
 		}
 	}

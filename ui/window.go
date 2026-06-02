@@ -16,6 +16,8 @@ type window struct {
 
 	done      chan struct{}
 	closeOnce sync.Once
+
+	exitErr error
 }
 
 func newWindow(cfg Config) *window {
@@ -56,6 +58,7 @@ func (w *window) Frame(fn func(layout.Context)) bool {
 			e.Frame(gtx.Ops)
 			return true
 		case app.DestroyEvent:
+			w.exitErr = e.Err
 			w.closeOnce.Do(func() { close(w.done) })
 			return false
 		}
