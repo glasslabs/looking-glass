@@ -24,12 +24,10 @@ func newWindow(cfg Config) *window {
 	w := new(app.Window)
 	w.Option(
 		app.Title("Glass"),
+		app.Size(unit.Dp(cfg.Width), unit.Dp(cfg.Height)),
 	)
-	switch {
-	case cfg.Fullscreen:
+	if cfg.Fullscreen {
 		w.Option(app.Fullscreen.Option())
-	default:
-		w.Option(app.Size(unit.Dp(cfg.Width), unit.Dp(cfg.Height)))
 	}
 
 	return &window{
