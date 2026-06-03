@@ -77,7 +77,7 @@ func New(cfg Config, log *logger.Logger) *UI {
 }
 
 // CreateModule registers a new module container in the given region.
-func (u *UI) CreateModule(name, vert, horiz string) error {
+func (u *UI) CreateModule(name, vert, horiz string) {
 	u.mu.Lock()
 	defer u.mu.Unlock()
 
@@ -91,8 +91,6 @@ func (u *UI) CreateModule(name, vert, horiz string) error {
 	n := &moduleNode{win: u.win}
 	r.addModule(n)
 	u.modules[name] = n
-
-	return nil
 }
 
 // ModuleUI returns a ModuleUI scoped to the named module.

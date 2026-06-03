@@ -121,7 +121,7 @@ type wazeroInstance struct {
 
 // Run calls the WASI _start export, which invokes the plugin's main() function.
 // main() performs setup and then enters a blocking update loop. Execution
-// continues until ctx is cancelled, at which point wazero interrupts the call
+// continues until ctx is canceled, at which point wazero interrupts the call
 // and returns a context error (treated as a clean shutdown, not an error).
 func (i *wazeroInstance) Run(ctx context.Context) error {
 	startFn := i.mod.ExportedFunction("_start")

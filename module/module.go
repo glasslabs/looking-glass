@@ -103,7 +103,7 @@ type WidgetUpdater interface {
 // UIProvider creates module containers and routes widget tree updates.
 type UIProvider interface {
 	// CreateModule registers a new module container at the given grid position.
-	CreateModule(name, vert, horiz string) error
+	CreateModule(name, vert, horiz string)
 	// ModuleUI returns the WidgetUpdater for the named module.
 	// Returns nil if the module has not been registered.
 	ModuleUI(name string) WidgetUpdater
@@ -183,10 +183,7 @@ func (l *Loader) Load(ctx context.Context, desc Descriptor) {
 
 	log.Debug("Module downloaded", lctx.Int("bytes", len(wasmBytes)))
 
-	if err = l.ui.CreateModule(name, pos.Vertical, pos.Horizontal); err != nil {
-		log.Error("Could not create module", lctx.Err(err))
-		return
-	}
+	l.ui.CreateModule(name, pos.Vertical, pos.Horizontal)
 
 	log.Debug("Module created", lctx.Str("module", name))
 

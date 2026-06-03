@@ -20,8 +20,8 @@ type uiProviderAdapter struct {
 	u *ui.UI
 }
 
-func (a uiProviderAdapter) CreateModule(name, vert, horiz string) error {
-	return a.u.CreateModule(name, vert, horiz)
+func (a uiProviderAdapter) CreateModule(name, vert, horiz string) {
+	a.u.CreateModule(name, vert, horiz)
 }
 
 func (a uiProviderAdapter) ModuleUI(name string) module.WidgetUpdater {
