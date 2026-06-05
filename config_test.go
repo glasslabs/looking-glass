@@ -96,6 +96,23 @@ func TestConfig_Validate(t *testing.T) {
 			wantErr: "config: ui width and height must be greater than zero",
 		},
 		{
+			name: "handles negative scale",
+			config: glass.Config{
+				UI: ui.Config{
+					Width:  1,
+					Height: 1,
+					Scale:  -1,
+				},
+				Modules: []module.Descriptor{
+					{
+						Name: "test-module",
+						URI:  "test",
+					},
+				},
+			},
+			wantErr: "config: ui scale must be greater than or equal to zero",
+		},
+		{
 			name: "handles no modules",
 			config: glass.Config{
 				UI: ui.Config{
