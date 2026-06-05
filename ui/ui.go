@@ -37,15 +37,19 @@ var windowBackground = color.NRGBA{R: 0x00, G: 0x00, B: 0x00, A: 0xFF}
 
 // Config contains configuration for the UI window.
 type Config struct {
-	Width      int  `yaml:"width"`
-	Height     int  `yaml:"height"`
-	Fullscreen bool `yaml:"fullscreen"`
+	Width      int     `yaml:"width"`
+	Height     int     `yaml:"height"`
+	Fullscreen bool    `yaml:"fullscreen"`
+	Scale      float32 `yaml:"scale"`
 }
 
 // Validate validates the Config.
 func (c Config) Validate() error {
 	if c.Width <= 0 || c.Height <= 0 {
 		return errors.New("config: ui width and height must be greater than zero")
+	}
+	if c.Scale < 0 {
+		return errors.New("config: ui scale must be greater than or equal to zero")
 	}
 	return nil
 }
@@ -54,6 +58,7 @@ func (c Config) Validate() error {
 type UI struct {
 	win    *window
 	shaper *text.Shaper
+	scale  float32
 
 	mu      sync.RWMutex
 	regions map[string]*region
@@ -67,9 +72,15 @@ func New(cfg Config, log *logger.Logger) *UI {
 	collection := append(gofont.Collection(), loadFontFaces(log)...)
 	shaper := text.NewShaper(text.NoSystemFonts(), text.WithCollection(collection))
 
+	scale := cfg.Scale
+	if scale <= 0 {
+		scale = 1.0
+	}
+
 	return &UI{
 		win:     newWindow(cfg),
 		shaper:  shaper,
+		scale:   scale,
 		regions: make(map[string]*region),
 		modules: make(map[string]ModuleUI),
 		log:     log,
@@ -122,6 +133,11 @@ func (u *UI) Run(ctx context.Context) error {
 }
 
 func (u *UI) doLayout(gtx layout.Context) layout.Dimensions {
+	if u.scale != 1.0 {
+		gtx.Metric.PxPerDp *= u.scale
+		gtx.Metric.PxPerSp *= u.scale
+	}
+
 	bg := clip.Rect{Max: gtx.Constraints.Max}.Push(gtx.Ops)
 	paint.ColorOp{Color: windowBackground}.Add(gtx.Ops)
 	paint.PaintOp{}.Add(gtx.Ops)
