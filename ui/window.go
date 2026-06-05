@@ -11,28 +11,30 @@ import (
 )
 
 type window struct {
-	win *app.Window
-	ops op.Ops
+	win        *app.Window
+	fullscreen bool
+	ops        op.Ops
 
 	done      chan struct{}
 	closeOnce sync.Once
+
+	exitErr error
 }
 
 func newWindow(cfg Config) *window {
-	w := new(app.Window)
-	w.Option(
+	opts := []app.Option{
 		app.Title("Glass"),
-	)
-	switch {
-	case cfg.Fullscreen:
-		w.Option(app.Fullscreen.Option())
-	default:
-		w.Option(app.Size(unit.Dp(cfg.Width), unit.Dp(cfg.Height)))
+		app.MinSize(unit.Dp(640), unit.Dp(480)),
+		app.Size(unit.Dp(cfg.Width), unit.Dp(cfg.Height)),
 	}
 
+	w := &app.Window{}
+	w.Option(opts...)
+
 	return &window{
-		win:  w,
-		done: make(chan struct{}),
+		win:        w,
+		fullscreen: cfg.Fullscreen,
+		done:       make(chan struct{}),
 	}
 }
 
@@ -54,8 +56,16 @@ func (w *window) Frame(fn func(layout.Context)) bool {
 			gtx := app.NewContext(&w.ops, e)
 			fn(gtx)
 			e.Frame(gtx.Ops)
+
+			// If fullscreen is requested, set it now, so we don't panic
+			// in Wayland.
+			if w.fullscreen {
+				w.fullscreen = false
+				w.win.Option(app.Fullscreen.Option())
+			}
 			return true
 		case app.DestroyEvent:
+			w.exitErr = e.Err
 			w.closeOnce.Do(func() { close(w.done) })
 			return false
 		}

@@ -17,6 +17,7 @@ import (
 	"gioui.org/unit"
 	"github.com/glasslabs/client-go"
 	"github.com/hamba/logger/v2"
+	lctx "github.com/hamba/logger/v2/ctx"
 )
 
 const (
@@ -76,7 +77,7 @@ func New(cfg Config, log *logger.Logger) *UI {
 }
 
 // CreateModule registers a new module container in the given region.
-func (u *UI) CreateModule(name, vert, horiz string) error {
+func (u *UI) CreateModule(name, vert, horiz string) {
 	u.mu.Lock()
 	defer u.mu.Unlock()
 
@@ -90,8 +91,6 @@ func (u *UI) CreateModule(name, vert, horiz string) error {
 	n := &moduleNode{win: u.win}
 	r.addModule(n)
 	u.modules[name] = n
-
-	return nil
 }
 
 // ModuleUI returns a ModuleUI scoped to the named module.
@@ -114,6 +113,9 @@ func (u *UI) Run(ctx context.Context) error {
 		}
 
 		if !u.win.Frame(func(gtx layout.Context) { u.doLayout(gtx) }) {
+			if u.win.exitErr != nil && !errors.Is(u.win.exitErr, context.Canceled) {
+				u.log.Error("Exiting UI", lctx.Err(u.win.exitErr))
+			}
 			return nil
 		}
 	}

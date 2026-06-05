@@ -400,8 +400,8 @@ func TestParseLogFmt(t *testing.T) {
 
 type noopUI struct{}
 
-func (noopUI) CreateModule(_, _, _ string) error { return nil }
-func (noopUI) ModuleUI(_ string) WidgetUpdater   { return nil }
+func (noopUI) CreateModule(_, _, _ string)     {}
+func (noopUI) ModuleUI(_ string) WidgetUpdater { return nil }
 
 type stubModule struct {
 	api.Module // nil embedding; panics on any unexpected method call

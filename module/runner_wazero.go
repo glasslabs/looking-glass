@@ -108,6 +108,8 @@ func (r *wazeroRunner) Load(ctx context.Context, name string, wasmBytes []byte, 
 
 // Close shuts down the wazero runtime and all instantiated modules.
 func (r *wazeroRunner) Close(ctx context.Context) error {
+	r.log.Debug("Closing WASM runner")
+
 	return r.runtime.Close(ctx)
 }
 
@@ -119,7 +121,7 @@ type wazeroInstance struct {
 
 // Run calls the WASI _start export, which invokes the plugin's main() function.
 // main() performs setup and then enters a blocking update loop. Execution
-// continues until ctx is cancelled, at which point wazero interrupts the call
+// continues until ctx is canceled, at which point wazero interrupts the call
 // and returns a context error (treated as a clean shutdown, not an error).
 func (i *wazeroInstance) Run(ctx context.Context) error {
 	startFn := i.mod.ExportedFunction("_start")
@@ -128,8 +130,7 @@ func (i *wazeroInstance) Run(ctx context.Context) error {
 	}
 	_, err := startFn.Call(ctx)
 	if err != nil && ctx.Err() == nil {
-		var exitErr *sys.ExitError
-		if errors.As(err, &exitErr) && exitErr.ExitCode() == 0 {
+		if exitErr, ok := errors.AsType[*sys.ExitError](err); ok && exitErr.ExitCode() == 0 {
 			return nil
 		}
 		return fmt.Errorf("run: %w", err)

@@ -181,8 +181,8 @@ func TestLoader_LoadWithWazeroIntegration(t *testing.T) {
 
 type mockUIProvider struct{ mock.Mock }
 
-func (m *mockUIProvider) CreateModule(name, vert, horiz string) error {
-	return m.Called(name, vert, horiz).Error(0)
+func (m *mockUIProvider) CreateModule(name, vert, horiz string) {
+	m.Called(name, vert, horiz)
 }
 
 func (m *mockUIProvider) ModuleUI(name string) module.WidgetUpdater {
