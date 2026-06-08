@@ -10,7 +10,7 @@ require (
 	github.com/hamba/testutils v0.7.1
 	github.com/joho/godotenv v1.5.1
 	github.com/stretchr/testify v1.11.1
-	github.com/tetratelabs/wazero v1.11.0
+	github.com/tetratelabs/wazero v1.12.0
 	github.com/urfave/cli/v3 v3.9.0
 	gopkg.in/yaml.v3 v3.0.1
 )
