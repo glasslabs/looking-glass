@@ -44,9 +44,9 @@ jobs:
           TAGS: ${{ steps.setup.outputs.tags }}
 
       - name: Package
-        run: zip "glass-${GITHUB_REF_NAME}-linux-$(go env GOARCH)-${{ matrix.variant.name }}.zip" glass
+        run: tar -czvf "glass-${GITHUB_REF_NAME#v}_linux_$(go env GOARCH)_${{ matrix.variant.name }}.tar.gz" glass
 
       - name: Upload release artifact
-        run: gh release upload "${GITHUB_REF_NAME}" "glass-${GITHUB_REF_NAME}-linux-$(go env GOARCH)-${{ matrix.variant.name }}.zip"
+        run: gh release upload "${GITHUB_REF_NAME}" "glass-${GITHUB_REF_NAME#v}_linux_$(go env GOARCH)_${{ matrix.variant.name }}.tar.gz"
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -4,25 +4,53 @@ import (
 	"bytes"
 	"context"
 	"crypto/sha256"
+	"encoding/hex"
 	"encoding/json"
 	"errors"
 	"fmt"
+	"runtime"
 	"strings"
 	"sync"
 
+	"github.com/go4org/hashtriemap"
 	"github.com/hamba/logger/v2"
 	lctx "github.com/hamba/logger/v2/ctx"
 	"github.com/tetratelabs/wazero"
 	"github.com/tetratelabs/wazero/api"
 	"github.com/tetratelabs/wazero/imports/wasi_snapshot_preview1"
 	"github.com/tetratelabs/wazero/sys"
+	"golang.org/x/sync/singleflight"
 )
 
-// newWazeroRunner returns a Runner backed by a shared wazero runtime.
-// WASI and the looking-glass host module are instantiated once into the
-// runtime; individual plugin instances are compiled and cached by SHA-256.
-func newWazeroRunner(ctx context.Context, ui UIProvider, assetsPath string, log *logger.Logger) (*wazeroRunner, error) {
-	rt := wazero.NewRuntimeWithConfig(ctx, wazero.NewRuntimeConfig().WithCloseOnContextDone(true))
+// wazeroRunner compiles WASM bytes with wazero and returns PluginInstances.
+// Compiled modules are cached by SHA-256 of their bytes so the same binary
+// loaded at two positions is only compiled once.
+type wazeroRunner struct {
+	cache      wazero.CompilationCache
+	runtime    wazero.Runtime
+	assetsPath string
+
+	comp      hashtriemap.HashTrieMap[[32]byte, wazero.CompiledModule]
+	compGrp   singleflight.Group
+	compQueue chan struct{}
+
+	log *logger.Logger
+}
+
+func newWazeroRunner(ctx context.Context, ui UIProvider, cachePath, assetsPath string, log *logger.Logger) (*wazeroRunner, error) {
+	cfg := wazero.NewRuntimeConfig().WithCloseOnContextDone(true)
+
+	var cache wazero.CompilationCache
+	if cachePath != "" {
+		var err error
+		cache, err = wazero.NewCompilationCacheWithDir(cachePath)
+		if err != nil {
+			return nil, fmt.Errorf("creating compilation cache: %w", err)
+		}
+		cfg = cfg.WithCompilationCache(cache)
+	}
+
+	rt := wazero.NewRuntimeWithConfig(ctx, cfg)
 
 	wasi_snapshot_preview1.MustInstantiate(ctx, rt)
 
@@ -32,24 +60,12 @@ func newWazeroRunner(ctx context.Context, ui UIProvider, assetsPath string, log 
 	}
 
 	return &wazeroRunner{
+		cache:      cache,
 		runtime:    rt,
 		assetsPath: assetsPath,
-		compiled:   make(map[[32]byte]wazero.CompiledModule),
+		compQueue:  make(chan struct{}, runtime.NumCPU()-1),
 		log:        log,
 	}, nil
-}
-
-// wazeroRunner compiles WASM bytes with wazero and returns PluginInstances.
-// Compiled modules are cached by SHA-256 of their bytes so the same binary
-// loaded at two positions is only compiled once.
-type wazeroRunner struct {
-	runtime    wazero.Runtime
-	assetsPath string
-
-	mu       sync.Mutex
-	compiled map[[32]byte]wazero.CompiledModule
-
-	log *logger.Logger
 }
 
 // Load compiles (or retrieves from cache) a WASM module and returns a
@@ -60,23 +76,10 @@ func (r *wazeroRunner) Load(ctx context.Context, name string, wasmBytes []byte, 
 		return nil, fmt.Errorf("encoding config for %s: %w", name, err)
 	}
 
-	hash := sha256.Sum256(wasmBytes)
-
-	r.mu.Lock()
-	compiled, ok := r.compiled[hash]
-	if !ok {
-		r.log.Info("Compiling WASM binary", lctx.Str("module", name), lctx.Int("bytes", len(wasmBytes)))
-		compiled, err = r.runtime.CompileModule(ctx, wasmBytes)
-		if err != nil {
-			r.mu.Unlock()
-			return nil, fmt.Errorf("compiling module %s: %w", name, err)
-		}
-		r.log.Info("WASM compilation done", lctx.Str("module", name))
-		r.compiled[hash] = compiled
-	} else {
-		r.log.Info("Using cached compiled module", lctx.Str("module", name))
+	comp, err := r.compileModule(ctx, name, wasmBytes)
+	if err != nil {
+		return nil, err
 	}
-	r.mu.Unlock()
 
 	modCfg := wazero.NewModuleConfig().
 		WithSysWalltime().
@@ -96,7 +99,7 @@ func (r *wazeroRunner) Load(ctx context.Context, name string, wasmBytes []byte, 
 
 	r.log.Debug("Instantiating module", lctx.Str("module", name))
 
-	mod, err := r.runtime.InstantiateModule(ctx, compiled, modCfg)
+	mod, err := r.runtime.InstantiateModule(ctx, comp, modCfg)
 	if err != nil {
 		return nil, fmt.Errorf("instantiating module %s: %w", name, err)
 	}
@@ -104,6 +107,38 @@ func (r *wazeroRunner) Load(ctx context.Context, name string, wasmBytes []byte, 
 	r.log.Info("Module instantiated", lctx.Str("module", name))
 
 	return &wazeroInstance{mod: mod, name: name}, nil
+}
+
+func (r *wazeroRunner) compileModule(ctx context.Context, name string, b []byte) (wazero.CompiledModule, error) {
+	hash := sha256.Sum256(b)
+
+	comp, ok := r.comp.Load(hash)
+	if ok {
+		r.log.Info("Using cached compiled module", lctx.Str("module", name))
+
+		return comp, nil
+	}
+
+	v, err, _ := r.compGrp.Do(hex.EncodeToString(hash[:]), func() (any, error) {
+		r.compQueue <- struct{}{}
+		defer func() { <-r.compQueue }()
+
+		r.log.Info("Compiling WASM binary", lctx.Str("module", name), lctx.Int("bytes", len(b)))
+
+		comp, err := r.runtime.CompileModule(ctx, b)
+		if err != nil {
+			return nil, fmt.Errorf("compiling module %s: %w", name, err)
+		}
+		r.comp.Store(hash, comp)
+
+		r.log.Info("WASM compilation done", lctx.Str("module", name))
+
+		return comp, nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	return v.(wazero.CompiledModule), nil
 }
 
 // Close shuts down the wazero runtime and all instantiated modules.

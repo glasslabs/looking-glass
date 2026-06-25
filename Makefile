@@ -8,7 +8,7 @@ ci: lint test build
 fonts:
 	@echo "==> Downloading Roboto fonts"
 	@mkdir -p ui/fonts
-	@curl -sSL "https://github.com/googlefonts/roboto-3-classic/releases/latest/download/Roboto_v3.015.zip" \
+	@curl -sSL "https://github.com/googlefonts/roboto-3-classic/releases/download/v3.015/Roboto_v3.015.zip" \
 		-o /tmp/roboto.zip
 	@unzip -o -j /tmp/roboto.zip "android/static/*.ttf" -d ui/fonts/
 	@rm /tmp/roboto.zip

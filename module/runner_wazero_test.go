@@ -18,8 +18,9 @@ func TestNewWazeroRunner(t *testing.T) {
 
 	var buf bytes.Buffer
 	log := logger.New(&buf, logger.LogfmtFormat(), logger.Info)
+	cachePath := t.TempDir()
 
-	runner, err := newWazeroRunner(t.Context(), noopUI{}, "", log)
+	runner, err := newWazeroRunner(t.Context(), noopUI{}, cachePath, "", log)
 
 	require.NoError(t, err)
 	require.NotNil(t, runner)
@@ -31,8 +32,9 @@ func TestWazeroRunner_Load(t *testing.T) {
 
 	var buf bytes.Buffer
 	log := logger.New(&buf, logger.LogfmtFormat(), logger.Info)
+	cachePath := t.TempDir()
 
-	runner, err := newWazeroRunner(t.Context(), noopUI{}, "", log)
+	runner, err := newWazeroRunner(t.Context(), noopUI{}, cachePath, "", log)
 	require.NoError(t, err)
 	t.Cleanup(func() { _ = runner.Close(context.Background()) })
 
@@ -51,8 +53,9 @@ func TestWazeroRunner_LoadCachesCompiledModule(t *testing.T) {
 
 	var buf bytes.Buffer
 	log := logger.New(&buf, logger.LogfmtFormat(), logger.Info)
+	cachePath := t.TempDir()
 
-	runner, err := newWazeroRunner(t.Context(), noopUI{}, "", log)
+	runner, err := newWazeroRunner(t.Context(), noopUI{}, cachePath, "", log)
 	require.NoError(t, err)
 	t.Cleanup(func() { _ = runner.Close(context.Background()) })
 
@@ -75,8 +78,9 @@ func TestWazeroRunner_LoadHandlesInvalidWasm(t *testing.T) {
 
 	var buf bytes.Buffer
 	log := logger.New(&buf, logger.LogfmtFormat(), logger.Info)
+	cachePath := t.TempDir()
 
-	runner, err := newWazeroRunner(t.Context(), noopUI{}, "", log)
+	runner, err := newWazeroRunner(t.Context(), noopUI{}, cachePath, "", log)
 	require.NoError(t, err)
 	t.Cleanup(func() { _ = runner.Close(context.Background()) })
 
@@ -91,8 +95,9 @@ func TestWazeroRunner_LoadHandlesInvalidConfig(t *testing.T) {
 
 	var buf bytes.Buffer
 	log := logger.New(&buf, logger.LogfmtFormat(), logger.Info)
+	cachePath := t.TempDir()
 
-	runner, err := newWazeroRunner(t.Context(), noopUI{}, "", log)
+	runner, err := newWazeroRunner(t.Context(), noopUI{}, cachePath, "", log)
 	require.NoError(t, err)
 	t.Cleanup(func() { _ = runner.Close(context.Background()) })
 
@@ -109,8 +114,9 @@ func TestWazeroRunner_Close(t *testing.T) {
 
 	var buf bytes.Buffer
 	log := logger.New(&buf, logger.LogfmtFormat(), logger.Info)
+	cachePath := t.TempDir()
 
-	runner, err := newWazeroRunner(t.Context(), noopUI{}, "", log)
+	runner, err := newWazeroRunner(t.Context(), noopUI{}, cachePath, "", log)
 	require.NoError(t, err)
 
 	err = runner.Close(context.Background())
@@ -180,8 +186,9 @@ func TestWazeroInstance_RunIntegration(t *testing.T) {
 
 	var buf bytes.Buffer
 	log := logger.New(&buf, logger.LogfmtFormat(), logger.Info)
+	cachePath := t.TempDir()
 
-	runner, err := newWazeroRunner(t.Context(), noopUI{}, "", log)
+	runner, err := newWazeroRunner(t.Context(), noopUI{}, cachePath, "", log)
 	require.NoError(t, err)
 	t.Cleanup(func() { _ = runner.Close(context.Background()) })
 
@@ -202,8 +209,9 @@ func TestWazeroInstance_RunIntegrationHandlesContextCancelled(t *testing.T) {
 
 	var buf bytes.Buffer
 	log := logger.New(&buf, logger.LogfmtFormat(), logger.Info)
+	cachePath := t.TempDir()
 
-	runner, err := newWazeroRunner(t.Context(), noopUI{}, "", log)
+	runner, err := newWazeroRunner(t.Context(), noopUI{}, cachePath, "", log)
 	require.NoError(t, err)
 	t.Cleanup(func() { _ = runner.Close(context.Background()) })
 
