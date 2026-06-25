@@ -31,10 +31,17 @@ func run(ctx context.Context, cmd *cli.Command) error {
 		return err
 	}
 
+	modPath := cmd.String(flagModPath)
+	cachePath := filepath.Join(modPath, "cache")
+	if err = os.MkdirAll(cachePath, 0o700); err != nil {
+		return fmt.Errorf("could not create cache directory: %w", err)
+	}
+
 	execCtx := module.ExecContext{
+		CachePath:  cachePath,
 		AssetsPath: cmd.String(flagAssetsPath),
 	}
-	if err = glass.Run(ctx, cfg, cmd.String(flagModPath), execCtx, log); err != nil {
+	if err = glass.Run(ctx, cfg, modPath, execCtx, log); err != nil {
 		log.Error("Looking Glass Shutdown", lctx.Err(err))
 
 		return err

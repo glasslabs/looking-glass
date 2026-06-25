@@ -127,6 +127,7 @@ type Runner interface {
 
 // ExecContext contains context for module execution.
 type ExecContext struct {
+	CachePath  string
 	AssetsPath string
 }
 
@@ -140,7 +141,7 @@ type Loader struct {
 
 // New returns a module Loader backed by a wazero Runner.
 func New(ctx context.Context, ui UIProvider, d *Downloader, execCtx ExecContext, log *logger.Logger) (*Loader, error) {
-	runner, err := newWazeroRunner(ctx, ui, execCtx.AssetsPath, log)
+	runner, err := newWazeroRunner(ctx, ui, execCtx.CachePath, execCtx.AssetsPath, log)
 	if err != nil {
 		return nil, fmt.Errorf("could not create runner: %w", err)
 	}

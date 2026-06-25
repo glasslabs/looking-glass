@@ -1,17 +1,19 @@
 module github.com/glasslabs/looking-glass
 
-go 1.26.3
+go 1.26.4
 
 require (
 	gioui.org v0.10.0
 	github.com/ettle/strcase v0.2.0
 	github.com/glasslabs/client-go v1.0.0
+	github.com/go4org/hashtriemap v0.0.0-20251130024219-545ba229f689
 	github.com/hamba/logger/v2 v2.10.0
 	github.com/hamba/testutils v0.7.1
 	github.com/joho/godotenv v1.5.1
 	github.com/stretchr/testify v1.11.1
-	github.com/tetratelabs/wazero v1.11.0
+	github.com/tetratelabs/wazero v1.12.0
 	github.com/urfave/cli/v3 v3.9.0
+	golang.org/x/sync v0.20.0
 	gopkg.in/yaml.v3 v3.0.1
 )
 
