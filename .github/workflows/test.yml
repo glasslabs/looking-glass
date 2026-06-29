@@ -18,7 +18,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Setup
         id: setup
@@ -37,14 +37,14 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Setup
         id: setup
         uses: ./.github/actions/setup
 
       - name: Cache Go test cache
-        uses: actions/cache@v5
+        uses: actions/cache@v6
         with:
           path: ${{ steps.setup.outputs.gocache }}
           key: ${{ runner.os }}-gotest-${{ hashFiles('**/go.sum') }}
@@ -70,7 +70,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Setup
         id: setup
@@ -79,7 +79,7 @@ jobs:
           variant: ${{ matrix.variant.name }}
 
       - name: Cache Go build cache
-        uses: actions/cache@v5
+        uses: actions/cache@v6
         with:
           path: ${{ steps.setup.outputs.gocache }}
           key: ${{ runner.os }}-${{ matrix.runs-on }}-${{ matrix.variant.name }}-gobuild-${{ hashFiles('**/go.sum') }}
