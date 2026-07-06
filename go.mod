@@ -3,7 +3,7 @@ module github.com/glasslabs/looking-glass
 go 1.26.4
 
 require (
-	gioui.org v0.10.0
+	gioui.org v0.10.1
 	github.com/ettle/strcase v0.2.0
 	github.com/glasslabs/client-go v1.0.0
 	github.com/go4org/hashtriemap v0.0.0-20251130024219-545ba229f689
