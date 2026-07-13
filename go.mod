@@ -3,7 +3,7 @@ module github.com/glasslabs/looking-glass
 go 1.26.4
 
 require (
-	gioui.org v0.10.0
+	gioui.org v0.10.1
 	github.com/ettle/strcase v0.2.0
 	github.com/glasslabs/client-go v1.0.0
 	github.com/go4org/hashtriemap v0.0.0-20251130024219-545ba229f689
@@ -13,7 +13,7 @@ require (
 	github.com/stretchr/testify v1.11.1
 	github.com/tetratelabs/wazero v1.12.0
 	github.com/urfave/cli/v3 v3.10.1
-	golang.org/x/sync v0.21.0
+	golang.org/x/sync v0.22.0
 	gopkg.in/yaml.v3 v3.0.1
 )
 
