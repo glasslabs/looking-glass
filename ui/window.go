@@ -4,6 +4,7 @@ import (
 	"sync"
 
 	"gioui.org/app"
+	"gioui.org/io/pointer"
 	"gioui.org/io/system"
 	"gioui.org/layout"
 	"gioui.org/op"
@@ -12,6 +13,7 @@ import (
 
 type window struct {
 	win        *app.Window
+	cursor     *pointer.Cursor
 	fullscreen bool
 	ops        op.Ops
 
@@ -31,8 +33,14 @@ func newWindow(cfg Config) *window {
 	w := &app.Window{}
 	w.Option(opts...)
 
+	cursor := pointer.CursorDefault
+	if cfg.Fullscreen {
+		cursor = pointer.CursorNone
+	}
+
 	return &window{
 		win:        w,
+		cursor:     &cursor,
 		fullscreen: cfg.Fullscreen,
 		done:       make(chan struct{}),
 	}
@@ -54,8 +62,8 @@ func (w *window) Frame(fn func(layout.Context)) bool {
 		switch e := w.win.Event().(type) {
 		case app.FrameEvent:
 			gtx := app.NewContext(&w.ops, e)
+			w.cursor.Add(&w.ops)
 			fn(gtx)
-			e.Frame(gtx.Ops)
 
 			// If fullscreen is requested, set it now, so we don't panic
 			// in Wayland.
@@ -63,6 +71,8 @@ func (w *window) Frame(fn func(layout.Context)) bool {
 				w.fullscreen = false
 				w.win.Option(app.Fullscreen.Option())
 			}
+
+			e.Frame(gtx.Ops)
 			return true
 		case app.DestroyEvent:
 			w.exitErr = e.Err
