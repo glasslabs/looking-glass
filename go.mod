@@ -3,7 +3,7 @@ module github.com/glasslabs/looking-glass
 go 1.26.4
 
 require (
-	gioui.org v0.10.1
+	gioui.org v0.10.2
 	github.com/ettle/strcase v0.2.0
 	github.com/glasslabs/client-go v1.0.0
 	github.com/go4org/hashtriemap v0.0.0-20251130024219-545ba229f689
@@ -18,7 +18,7 @@ require (
 )
 
 require (
-	gioui.org/shader v1.0.8 // indirect
+	gioui.org/shader v1.0.9 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/go-stack/stack v1.8.1 // indirect
