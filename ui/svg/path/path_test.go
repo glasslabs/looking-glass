@@ -11,7 +11,6 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-
 func TestParse_M(t *testing.T) {
 	t.Parallel()
 

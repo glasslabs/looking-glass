@@ -14,7 +14,7 @@ jobs:
 
     runs-on: ubuntu-24.04
     env:
-      GOLANGCI_LINT_VERSION: v2.11.4
+      GOLANGCI_LINT_VERSION: v2.13.1
 
     steps:
       - name: Checkout code

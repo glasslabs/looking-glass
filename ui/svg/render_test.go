@@ -189,4 +189,3 @@ func TestRender_HandlesViewboxOffset(t *testing.T) {
 		Render(newTestGtx(200, 200), doc, image.Pt(200, 200), nil)
 	})
 }
-

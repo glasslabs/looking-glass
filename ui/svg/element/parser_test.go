@@ -244,4 +244,3 @@ func TestParse_EmptyDoc(t *testing.T) {
 	require.NoError(t, err)
 	assert.Empty(t, doc.Children)
 }
-
