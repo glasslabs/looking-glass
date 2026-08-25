@@ -10,7 +10,10 @@ formatters:
     - goimports
   settings:
     gofumpt:
-      extra-rules: true
+      extra:
+        group-params: true
+        clothe-returns: true
+        balance-calls: true
   exclusions:
     generated: lax
 
@@ -22,6 +25,7 @@ linters:
     - err113
     - exhaustive
     - exhaustruct
+    - exhaustruct_v5
     - forcetypeassert
     - funcorder
     - funlen
@@ -29,6 +33,7 @@ linters:
     - gochecknoinits
     - gocyclo
     - gomoddirectives
+    - gomodguard
     - ireturn
     - mnd
     - musttag

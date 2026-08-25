@@ -214,7 +214,8 @@ func layoutLabel(gtx layout.Context, l *client.Label, scaleX, scaleY float32, sh
 		call := m.Stop()
 
 		widget.Label{Alignment: text.Start, MaxLines: 1}.Layout(
-			childGtx, shaper, font.Font{Typeface: robotoTypeface}, sp, run.Content, call)
+			childGtx, shaper, font.Font{Typeface: robotoTypeface}, sp, run.Content, call,
+		)
 		stack.Pop()
 
 		curX += measures[i].w

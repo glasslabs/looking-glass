@@ -14,8 +14,6 @@ import (
 )
 
 func TestNewWazeroRunner(t *testing.T) {
-	t.Parallel()
-
 	var buf bytes.Buffer
 	log := logger.New(&buf, logger.LogfmtFormat(), logger.Info)
 	cachePath := t.TempDir()
@@ -28,8 +26,6 @@ func TestNewWazeroRunner(t *testing.T) {
 }
 
 func TestWazeroRunner_Load(t *testing.T) {
-	t.Parallel()
-
 	var buf bytes.Buffer
 	log := logger.New(&buf, logger.LogfmtFormat(), logger.Info)
 	cachePath := t.TempDir()
@@ -49,8 +45,6 @@ func TestWazeroRunner_Load(t *testing.T) {
 }
 
 func TestWazeroRunner_LoadCachesCompiledModule(t *testing.T) {
-	t.Parallel()
-
 	var buf bytes.Buffer
 	log := logger.New(&buf, logger.LogfmtFormat(), logger.Info)
 	cachePath := t.TempDir()
@@ -74,8 +68,6 @@ func TestWazeroRunner_LoadCachesCompiledModule(t *testing.T) {
 }
 
 func TestWazeroRunner_LoadHandlesInvalidWasm(t *testing.T) {
-	t.Parallel()
-
 	var buf bytes.Buffer
 	log := logger.New(&buf, logger.LogfmtFormat(), logger.Info)
 	cachePath := t.TempDir()
@@ -91,8 +83,6 @@ func TestWazeroRunner_LoadHandlesInvalidWasm(t *testing.T) {
 }
 
 func TestWazeroRunner_LoadHandlesInvalidConfig(t *testing.T) {
-	t.Parallel()
-
 	var buf bytes.Buffer
 	log := logger.New(&buf, logger.LogfmtFormat(), logger.Info)
 	cachePath := t.TempDir()
@@ -110,8 +100,6 @@ func TestWazeroRunner_LoadHandlesInvalidConfig(t *testing.T) {
 }
 
 func TestWazeroRunner_Close(t *testing.T) {
-	t.Parallel()
-
 	var buf bytes.Buffer
 	log := logger.New(&buf, logger.LogfmtFormat(), logger.Info)
 	cachePath := t.TempDir()
@@ -125,8 +113,6 @@ func TestWazeroRunner_Close(t *testing.T) {
 }
 
 func TestWazeroInstance_RunNoStartFunction(t *testing.T) {
-	t.Parallel()
-
 	mod := &stubModule{fn: nil}
 	inst := &wazeroInstance{mod: mod, name: "test"}
 
@@ -136,8 +122,6 @@ func TestWazeroInstance_RunNoStartFunction(t *testing.T) {
 }
 
 func TestWazeroInstance_RunStartReturnsError(t *testing.T) {
-	t.Parallel()
-
 	fn := &stubFunction{err: errors.New("start failed")}
 	mod := &stubModule{fn: fn}
 	inst := &wazeroInstance{mod: mod, name: "test"}
@@ -149,8 +133,6 @@ func TestWazeroInstance_RunStartReturnsError(t *testing.T) {
 }
 
 func TestWazeroInstance_RunHandlesContextCancelled(t *testing.T) {
-	t.Parallel()
-
 	ctx, cancel := context.WithCancel(context.Background())
 	cancel()
 
@@ -164,8 +146,6 @@ func TestWazeroInstance_RunHandlesContextCancelled(t *testing.T) {
 }
 
 func TestWazeroInstance_Close(t *testing.T) {
-	t.Parallel()
-
 	closed := false
 	mod := &stubModule{
 		closeFn: func(_ context.Context) error {
@@ -182,8 +162,6 @@ func TestWazeroInstance_Close(t *testing.T) {
 }
 
 func TestWazeroInstance_RunIntegration(t *testing.T) {
-	t.Parallel()
-
 	var buf bytes.Buffer
 	log := logger.New(&buf, logger.LogfmtFormat(), logger.Info)
 	cachePath := t.TempDir()
@@ -205,8 +183,6 @@ func TestWazeroInstance_RunIntegration(t *testing.T) {
 }
 
 func TestWazeroInstance_RunIntegrationHandlesContextCancelled(t *testing.T) {
-	t.Parallel()
-
 	var buf bytes.Buffer
 	log := logger.New(&buf, logger.LogfmtFormat(), logger.Info)
 	cachePath := t.TempDir()
@@ -231,8 +207,6 @@ func TestWazeroInstance_RunIntegrationHandlesContextCancelled(t *testing.T) {
 }
 
 func TestPluginLogWriter_WriteBuffersAndFlushesLines(t *testing.T) {
-	t.Parallel()
-
 	tests := []struct {
 		name       string
 		input      []string
@@ -295,8 +269,6 @@ func TestPluginLogWriter_WriteBuffersAndFlushesLines(t *testing.T) {
 }
 
 func TestPluginLogWriter_WriteDispatchesLogLevels(t *testing.T) {
-	t.Parallel()
-
 	tests := []struct {
 		name string
 		line string
@@ -351,8 +323,6 @@ func TestPluginLogWriter_WriteDispatchesLogLevels(t *testing.T) {
 }
 
 func TestParseLogFmt(t *testing.T) {
-	t.Parallel()
-
 	tests := []struct {
 		name string
 		line string

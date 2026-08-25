@@ -162,4 +162,3 @@ func TestParse_MissingParenErrors(t *testing.T) {
 
 	assert.Error(t, err)
 }
-

@@ -1,13 +1,13 @@
 module github.com/glasslabs/looking-glass
 
-go 1.26.4
+go 1.27.0
 
 require (
 	gioui.org v0.10.2
 	github.com/ettle/strcase v0.2.0
 	github.com/glasslabs/client-go v1.0.0
-	github.com/go4org/hashtriemap v0.0.0-20251130024219-545ba229f689
-	github.com/hamba/logger/v2 v2.10.0
+	github.com/go4org/hashtriemap v0.0.0-20260824042624-45fcf11fca0e
+	github.com/hamba/logger/v2 v2.10.1
 	github.com/hamba/testutils v0.7.1
 	github.com/joho/godotenv v1.5.1
 	github.com/stretchr/testify v1.12.1
@@ -25,13 +25,13 @@ require (
 	github.com/kr/pretty v0.3.1 // indirect
 	github.com/rogpeppe/go-internal v1.14.1 // indirect
 	github.com/stretchr/objx v0.5.3 // indirect
-	go.opentelemetry.io/otel v1.43.0 // indirect
-	go.opentelemetry.io/otel/trace v1.43.0 // indirect
+	go.opentelemetry.io/otel v1.45.0 // indirect
+	go.opentelemetry.io/otel/trace v1.45.0 // indirect
 	go.yaml.in/yaml/v3 v3.0.5 // indirect
 	golang.org/x/exp/shiny v0.0.0-20250408133849-7e4ce0ab07d0 // indirect
 	golang.org/x/image v0.26.0 // indirect
 	golang.org/x/net v0.48.0 // indirect
-	golang.org/x/sys v0.45.0 // indirect
+	golang.org/x/sys v0.47.0 // indirect
 	golang.org/x/text v0.36.0 // indirect
 	gopkg.in/check.v1 v1.0.0-20201130134442-10cb98267c6c // indirect
 )
