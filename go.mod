@@ -12,8 +12,8 @@ require (
 	github.com/joho/godotenv v1.5.1
 	github.com/stretchr/testify v1.12.1
 	github.com/tetratelabs/wazero v1.12.0
-	github.com/urfave/cli/v3 v3.11.0
-	golang.org/x/sync v0.22.0
+	github.com/urfave/cli/v3 v3.12.0
+	golang.org/x/sync v0.23.0
 	gopkg.in/yaml.v3 v3.0.1
 )
 
