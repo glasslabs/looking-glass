@@ -3,7 +3,7 @@ module github.com/glasslabs/looking-glass
 go 1.27.0
 
 require (
-	gioui.org v0.10.2
+	gioui.org v0.10.3
 	github.com/ettle/strcase v0.2.0
 	github.com/glasslabs/client-go v1.0.0
 	github.com/go4org/hashtriemap v0.0.0-20260824042624-45fcf11fca0e
@@ -12,8 +12,8 @@ require (
 	github.com/joho/godotenv v1.5.1
 	github.com/stretchr/testify v1.12.1
 	github.com/tetratelabs/wazero v1.12.0
-	github.com/urfave/cli/v3 v3.11.0
-	golang.org/x/sync v0.22.0
+	github.com/urfave/cli/v3 v3.14.0
+	golang.org/x/sync v0.23.0
 	gopkg.in/yaml.v3 v3.0.1
 )
 
@@ -21,7 +21,8 @@ require (
 	gioui.org/shader v1.0.9 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/go-stack/stack v1.8.1 // indirect
-	github.com/go-text/typesetting v0.3.4 // indirect
+	github.com/go-text/typesetting v0.3.5 // indirect
+	github.com/godbus/dbus/v5 v5.2.2 // indirect
 	github.com/kr/pretty v0.3.1 // indirect
 	github.com/rogpeppe/go-internal v1.14.1 // indirect
 	github.com/stretchr/objx v0.5.3 // indirect
